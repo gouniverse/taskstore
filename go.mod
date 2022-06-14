@@ -1,4 +1,4 @@
-module taskstore
+module github.com/gouniverse/taskstore
 
 go 1.18
 

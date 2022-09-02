@@ -140,7 +140,7 @@ func (st *Store) TaskList(options map[string]interface{}) ([]Task, error) {
 	q = q.Where(goqu.C("deleted_at").IsNull())
 
 	if limit != "" {
-		limitInt := uint(limit.(float64))
+		limitInt := uint(limit.(int))
 		q = q.Limit(limitInt)
 	}
 

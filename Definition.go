@@ -32,6 +32,7 @@ type Definition struct {
 // DefinitionCreate creates a Definition
 func (st *Store) DefinitionCreate(Definition *Definition) (bool, error) {
 	if Definition.ID == "" {
+		time.Sleep(1 * time.Millisecond) // !!! important
 		Definition.ID = uid.MicroUid()
 	}
 	Definition.CreatedAt = time.Now()
@@ -76,10 +77,16 @@ func (st *Store) DefinitionList(options map[string]string) ([]Definition, error)
 	err := sqlscan.Select(context.Background(), st.db, &list, sqlStr)
 
 	if err != nil {
-		if err.Error() == sql.ErrNoRows.Error() {
+		if err == sql.ErrNoRows {
+			// sqlscan does not use this anymore
 			return nil, nil
 		}
-		// log.Fatal("Failed to execute query: ", err)
+
+		if sqlscan.NotFound(err) {
+			return nil, nil
+		}
+
+		log.Println("TaskSTore. Error: ", err)
 		return nil, err
 	}
 
@@ -98,10 +105,16 @@ func (st *Store) DefinitionFindByAlias(alias string) *Definition {
 	err := sqlscan.Get(context.Background(), st.db, &Definition, sqlStr)
 
 	if err != nil {
-		if err.Error() == sql.ErrNoRows.Error() {
+		if err == sql.ErrNoRows {
+			// sqlscan does not use this anymore
 			return nil
 		}
-		log.Fatal("Failed to execute query: ", err)
+
+		if sqlscan.NotFound(err) {
+			return nil
+		}
+
+		log.Println("TaskStore. DefinitionFindByAlias. Error: ", err)
 		return nil
 	}
 
@@ -120,10 +133,16 @@ func (st *Store) DefinitionFindByID(id string) *Definition {
 	err := sqlscan.Get(context.Background(), st.db, &Definition, sqlStr)
 
 	if err != nil {
-		if err.Error() == sql.ErrNoRows.Error() {
+		if err == sql.ErrNoRows {
+			// sqlscan does not use this anymore
 			return nil
 		}
-		log.Fatal("Failed to execute query: ", err)
+
+		if sqlscan.NotFound(err) {
+			return nil
+		}
+
+		log.Fatal("TaskStore. DefinitionFindByID. Error: ", err)
 		return nil
 	}
 
@@ -169,7 +188,7 @@ func (st *Store) SqlCreateDefinitionTable() string {
 	  "created_at"  timestamptz(6) NOT NULL,
 	  "updated_at"  timestamptz(6) NOT NULL,
 	  "deleted_at"  timestamptz(6) DEFAULT NULL
-	)
+	);
 	`
 
 	sqlSqlite := `
@@ -183,7 +202,7 @@ func (st *Store) SqlCreateDefinitionTable() string {
 	  "created_at"  datetime     NOT NULL,
 	  "updated_at"  datetime     NOT NULL,
 	  "deleted_at"  datetime     DEFAULT NULL
-	)
+	);
 	`
 
 	sql := "unsupported driver " + st.dbDriverName

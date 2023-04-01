@@ -171,6 +171,7 @@ func Test_Task_GetParameters(t *testing.T) {
 func Test_Task_TaskList(t *testing.T) {
 	s := InitStore()
 	task := NewTask()
+	task.Status = TaskStatusQueued
 	query := s.SqlCreateTaskTable()
 	if strings.Contains(query, "unsupported driver") {
 		t.Fatalf("TaskList: UnExpected Query, received [%v]", query)
@@ -184,18 +185,28 @@ func Test_Task_TaskList(t *testing.T) {
 		t.Fatalf("TaskList: Error in Creating Task: received [%v]", err)
 	}
 
-	u, err := json.Marshal(Temp{Status: "Bob", Limit: 10})
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
-	task.Parameters = string(u)
+	// u, err := json.Marshal(Temp{Status: "Bob", Limit: 10})
+	// if err != nil {
+	// 	t.Fatalf("%v", err)
+	// }
+	// task.Parameters = string(u)
 
-	data, err := task.GetParameters()
+	// data, err := task.GetParameters()
+	// if err != nil {
+	// 	t.Fatalf("TaskList: Error[%v]", err)
+	// }
+	list, err := s.TaskList(TaskListOptions{
+		Status:    TaskStatusQueued,
+		Limit:     10,
+		SortOrder: "asc",
+		SortBy:    "id",
+	})
+
 	if err != nil {
 		t.Fatalf("TaskList: Error[%v]", err)
 	}
-	_, err = s.TaskList(data)
-	if err != nil {
-		t.Fatalf("TaskList: Error[%v]", err)
+
+	if len(list) != 1 {
+		t.Fatal("There must be 1 task, found: ", list)
 	}
 }

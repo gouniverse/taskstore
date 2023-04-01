@@ -111,7 +111,7 @@ func WithTaskTableName(taskTaskTableName string) StoreOption {
 	}
 }
 
-// WithDb sets the database for the setting store
+// WithDb sets the database for the task store
 func WithDb(db *sql.DB) StoreOption {
 	return func(s *Store) {
 		s.db = db
@@ -126,13 +126,15 @@ func WithDebug(debug bool) StoreOption {
 	}
 }
 
-// TaskCreate creates a Task
+// EnqueueByAlias creates and enqueues a Task
 func (st *Store) EnqueueByAlias(alias string, parameters map[string]interface{}) (*Task, error) {
 	definition := st.DefinitionFindByAlias(alias)
 
 	if definition == nil {
 		return nil, errors.New("definition with alias '" + alias + "' not found")
 	}
+
+	parameters = prependTaskAlias(alias, parameters)
 
 	parametersBytes, jsonErr := json.Marshal(parameters)
 
@@ -155,4 +157,16 @@ func (st *Store) EnqueueByAlias(alias string, parameters map[string]interface{})
 	}
 
 	return &queuedTask, err
+}
+
+// prependTaskAlias prepends a task alias to the parameters so that its easy to distinguish
+func prependTaskAlias(alias string, parameters map[string]interface{}) map[string]interface{} {
+	copiedParameters := map[string]interface{}{
+		"task_alias": alias,
+	}
+	for index, element := range parameters {
+		copiedParameters[index] = element
+	}
+
+	return copiedParameters
 }

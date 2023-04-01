@@ -9,7 +9,7 @@ import (
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/georgysavva/scany/sqlscan"
-	"github.com/gouniverse/php"
+	"github.com/golang-module/carbon/v2"
 	"github.com/gouniverse/uid"
 )
 
@@ -46,7 +46,7 @@ func (Task) TableName() string {
 
 // AppendDetails appends details to the task, warning does not save it
 func (queuedTask *Task) AppendDetails(details string) {
-	ts := php.Date("Y-m-d H:i:s", time.Now().Unix())
+	ts := carbon.Now().Format("Y-m-d H:i:s")
 	text := queuedTask.Details
 	if text != "" {
 		text += "\n"
@@ -84,6 +84,7 @@ func (st *Store) TaskSuccess(task *Task) error {
 // TaskCreate creates a Task
 func (st *Store) TaskCreate(task *Task) error {
 	if task.ID == "" {
+		time.Sleep(1 * time.Millisecond) // !!! important
 		task.ID = uid.MicroUid()
 	}
 	task.CreatedAt = time.Now()
@@ -105,43 +106,32 @@ func (st *Store) TaskCreate(task *Task) error {
 	return nil
 }
 
-func (st *Store) TaskList(options map[string]interface{}) ([]Task, error) {
-	status, statusExists := options["status"]
-	if !statusExists {
-		status = ""
-	}
-	limit, limitExists := options["limit"]
-	if !limitExists {
-		limit = ""
-	}
-	sortBy, sortByExists := options["sort_by"]
-	if !sortByExists {
-		sortBy = "created_at"
-	}
-	sortOrder, sortOrderExists := options["sort_order"]
-	if !sortOrderExists {
-		sortOrder = "desc"
-	}
+type TaskListOptions struct {
+	Status    string
+	Limit     int
+	SortBy    string
+	SortOrder string
+}
 
+func (st *Store) TaskList(options TaskListOptions) ([]Task, error) {
 	q := goqu.Dialect(st.dbDriverName).From(st.taskTaskTableName)
 
-	if status != "" {
-		q = q.Where(goqu.C("status").Eq(status))
+	if options.Status != "" {
+		q = q.Where(goqu.C("status").Eq(options.Status))
 	}
 
-	if sortBy != "" {
-		if sortOrder == "asc" {
-			q = q.Order(goqu.I(sortBy.(string)).Asc())
+	if options.SortBy != "" {
+		if options.SortOrder == "asc" {
+			q = q.Order(goqu.I(options.SortBy).Asc())
 		} else {
-			q = q.Order(goqu.I(sortBy.(string)).Desc())
+			q = q.Order(goqu.I(options.SortBy).Desc())
 		}
 	}
 
 	q = q.Where(goqu.C("deleted_at").IsNull())
 
-	if limit != "" {
-		limitInt := uint(limit.(int))
-		q = q.Limit(limitInt)
+	if options.Limit != 0 {
+		q = q.Limit(uint(options.Limit))
 	}
 
 	sqlStr, _, _ := q.Select().ToSQL()
@@ -157,38 +147,26 @@ func (st *Store) TaskList(options map[string]interface{}) ([]Task, error) {
 		if err.Error() == sql.ErrNoRows.Error() {
 			return nil, nil
 		}
-		// log.Fatal("Failed to execute query: ", err)
+
+		if sqlscan.NotFound(err) {
+			return nil, nil
+		}
+
+		log.Println("TaskStore. TaskList. Error: ", err)
 		return nil, err
 	}
 
 	return list, err
 }
 
-// TaskFindByPersonID finds a Task by ID
-// func (st *Store) TaskFindByUserID(personID string) (*Task, error) {
-// 	sqlStr, _, _ := goqu.Dialect(st.dbDriverName).From(st.licenseTableName).Where(goqu.C("user_id").Eq(personID), goqu.C("deleted_at").IsNull()).Select().Limit(1).ToSQL()
-
-// 	if st.debug {
-// 		log.Println(sqlStr)
-// 	}
-
-// 	var Task Task
-// 	err := sqlscan.Get(context.Background(), st.db, &Task, sqlStr)
-
-// 	if err != nil {
-// 		if err.Error() == sql.ErrNoRows.Error() {
-// 			return nil, nil
-// 		}
-// 		// log.Fatal("Failed to execute query: ", err)
-// 		return nil, err
-// 	}
-
-// 	return &Task, err
-// }
-
 // TaskFindByID finds a Task by ID
 func (st *Store) TaskFindByID(id string) *Task {
-	sqlStr, _, _ := goqu.Dialect(st.dbDriverName).From(st.taskTaskTableName).Where(goqu.C("id").Eq(id), goqu.C("deleted_at").IsNull()).Select().Limit(1).ToSQL()
+	sqlStr, _, _ := goqu.Dialect(st.dbDriverName).
+		From(st.taskTaskTableName).
+		Where(goqu.C("id").Eq(id), goqu.C("deleted_at").IsNull()).
+		Select().
+		Limit(1).
+		ToSQL()
 
 	if st.debug {
 		log.Println(sqlStr)
@@ -198,10 +176,16 @@ func (st *Store) TaskFindByID(id string) *Task {
 	err := sqlscan.Get(context.Background(), st.db, &Task, sqlStr)
 
 	if err != nil {
-		if err.Error() == sql.ErrNoRows.Error() {
+		if err == sql.ErrNoRows {
+			// sqlscan does not use this anymore
 			return nil
 		}
-		log.Fatal("Failed to execute query: ", err)
+
+		if sqlscan.NotFound(err) {
+			return nil
+		}
+
+		log.Println("TaskSTore. TaskFindByID. Error: ", err)
 		return nil
 	}
 
@@ -211,7 +195,11 @@ func (st *Store) TaskFindByID(id string) *Task {
 // TaskUpdate creates a Task
 func (st *Store) TaskUpdate(queue *Task) error {
 	queue.UpdatedAt = time.Now()
-	sqlStr, _, _ := goqu.Dialect(st.dbDriverName).Update(st.taskTaskTableName).Where(goqu.C("id").Eq(queue.ID)).Set(queue).ToSQL()
+	sqlStr, _, _ := goqu.Dialect(st.dbDriverName).
+		Update(st.taskTaskTableName).
+		Where(goqu.C("id").Eq(queue.ID)).
+		Set(queue).
+		ToSQL()
 
 	if st.debug {
 		log.Println(sqlStr)

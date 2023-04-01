@@ -2,9 +2,10 @@ package taskstore
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"os"
 	"testing"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func InitDB(filepath string) *sql.DB {
@@ -19,7 +20,7 @@ func InitDB(filepath string) *sql.DB {
 }
 
 func InitStore() *Store {
-	db := InitDB("test_settingstore.db")
+	db := InitDB("test_taskstore.db")
 	return &Store{
 		taskDefinitionTableName: "test_taskTableName.db",
 		taskTaskTableName:       "Task",
@@ -96,23 +97,3 @@ func Test_Store_DriverName(t *testing.T) {
 		t.Fatalf("Expected Debug [%v], received [%v]", "sqlite", s)
 	}
 }
-
-/*
-func Test_Store_AutoMigrate(t *testing.T) {
-	db := InitDB("test_settingsTableName.db")
-
-	s, _ := NewStore(WithDb(db), WithTableName("log_with_automigrate"), WithAutoMigrate(true))
-
-	s.AutoMigrate()
-
-	if s.settingsTableName != "log_with_automigrate" {
-		t.Fatalf("Expected logTableName [log_with_automigrate] received [%v]", s.settingsTableName)
-	}
-	if s.db == nil {
-		t.Fatalf("DB Init Failure")
-	}
-	if s.automigrateEnabled != true {
-		t.Fatalf("Failure:  WithAutoMigrate")
-	}
-}
-*/

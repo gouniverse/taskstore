@@ -1,7 +1,7 @@
 # Task Store <a href="https://gitpod.io/#https://github.com/gouniverse/taskstore" style="float:right:"><img src="https://gitpod.io/button/open-in-gitpod.svg" alt="Open in Gitpod" loading="lazy"></a>
 
 
-[![Tests Status](https://github.com/gouniverse/taskstore/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/gouniverse/taskstore/actions/workflows/test.yml)
+[![Tests Status](https://github.com/gouniverse/taskstore/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/gouniverse/taskstore/actions/workflows/tests.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gouniverse/taskstore)](https://goreportcard.com/report/github.com/gouniverse/taskstore)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/gouniverse/taskstore)](https://pkg.go.dev/github.com/gouniverse/taskstore)
 

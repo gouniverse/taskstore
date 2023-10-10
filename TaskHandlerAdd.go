@@ -4,17 +4,17 @@ import "errors"
 
 var errTaskMissing = errors.New("task not found")
 
-func (store *Store) TaskHandlerAdd(handler TaskHandlerInterface, createIfMissing bool) error {
-	task := store.TaskFindByAlias(handler.Alias())
+func (store *Store) TaskHandlerAdd(taskHandler TaskHandlerInterface, createIfMissing bool) error {
+	task := store.TaskFindByAlias(taskHandler.Alias())
 
 	if task == nil && !createIfMissing {
 		return errTaskMissing
 	}
 
 	if task == nil && createIfMissing {
-		alias := handler.Alias()
-		title := handler.Title()
-		description := handler.Description()
+		alias := taskHandler.Alias()
+		title := taskHandler.Title()
+		description := taskHandler.Description()
 
 		task := Task{
 			Status:      TaskStatusActive,
@@ -27,6 +27,8 @@ func (store *Store) TaskHandlerAdd(handler TaskHandlerInterface, createIfMissing
 			return err
 		}
 	}
+
+	store.taskHandlers = append(store.taskHandlers, taskHandler)
 
 	return nil
 }

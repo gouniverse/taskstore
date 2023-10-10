@@ -13,6 +13,7 @@ import (
 type Store struct {
 	taskTableName      string
 	queueTableName     string
+	taskHandlers       []TaskHandlerInterface
 	db                 *sql.DB
 	dbDriverName       string
 	automigrateEnabled bool

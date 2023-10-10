@@ -65,7 +65,7 @@ func (handler *HelloWorldTaskHandler) Handle(opts taskstore.TaskHandlerOptions) 
 	if !handler.HasQueuedTask() && handler.GetParam("enqueue", opts) == "yes" {
 		_, err := handler.Enqueue()
 		if err != nil {
-			handler.LogError("Error enqueuing task: " + err.Error())
+			handler.LogError("Error enqueing task: " + err.Error())
 		} else {
 			handler.LogSuccess("Task enqueued.")
 		}

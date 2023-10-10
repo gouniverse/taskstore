@@ -11,14 +11,70 @@ go get github.com/gouniverse/taskstore
 
 ## Setup
 
-```go
-taskStore = taskstore.NewStore(taskstore.NewStoreOptions{
+```golang
+myTaskStore = taskstore.NewStore(taskstore.NewStoreOptions{
 	DB:                 databaseInstance,
-    TaskTableName:      "my_task"
+    	TaskTableName:      "my_task"
 	QueueTableName:     "my_queue",
 	AutomigrateEnabled: true,
 	DebugEnabled:       false,
 })
+```
+
+## Task Hadlers
+
+Task handlers process the queued tasks. They must implement the TaskHandlerInterface, 
+and optionally extend the TaskHandlerBase struct for additional functionality
+i.e. getting task parameters, etc.
+
+The task handlers can be run directly on the CLI, or as part of a background queue.
+
+```golang
+package taskhandlers
+
+func NewHelloWorldTaskHandler() *HelloWorldTaskHandler {
+	return &HelloWorldTaskHandler{}
+}
+
+type HelloWorldTaskHandler struct {
+	taskstore.TaskHandlerBase
+}
+
+var _ taskstore.TaskHandlerInterface = (*HelloWorldTaskHandler)(nil) // verify it extends the task interface
+
+func (handler *HelloWorldTaskHandler) Alias() string {
+	return "HelloWorldTaskHandler"
+}
+
+func (handler *HelloWorldTaskHandler) Title() string {
+	return "Hello World"
+}
+
+func (handler *HelloWorldTaskHandler) Description() string {
+	return "Say hello world"
+}
+
+// Enqueue. Optional shortcut to quickly add this task to the queue
+func (handler *HelloWorldTaskHandler) Enqueue() (task *taskstore.Queue, err error) {
+	return myTaskStore.TaskEnqueueByAlias(handler.Alias(), map[string]any{})
+}
+
+func (handler *HelloWorldTaskHandler) Handle(opts taskstore.TaskHandlerOptions) bool {
+
+        // Optional to allow adding the task to the queue manually. Useful while in development
+	if !handler.HasQueuedTask() && handler.GetParam("enqueue", opts) == "yes" {
+		_, err := handler.Enqueue()
+		if err != nil {
+			handler.LogError("Error enqueuing task: " + err.Error())
+		} else {
+			handler.LogSuccess("Task enqueued.")
+		}
+		return true
+	}
+
+	handler.LogInfo("Hello World!")
+	return true
+}
 ```
 
 ## Methods

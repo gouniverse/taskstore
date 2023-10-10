@@ -6,7 +6,7 @@ import (
 	"github.com/mingrammer/cfmt"
 )
 
-type BaseTaskHandler struct {
+type TaskHandlerBase struct {
 	QueuedTask *Queue // dynamic
 
 	ErrorMessage   string
@@ -14,11 +14,11 @@ type BaseTaskHandler struct {
 	SuccessMessage string
 }
 
-func (t *BaseTaskHandler) HasQueuedTask() bool {
+func (t *TaskHandlerBase) HasQueuedTask() bool {
 	return t.QueuedTask != nil
 }
 
-func (t *BaseTaskHandler) LogError(message string) {
+func (t *TaskHandlerBase) LogError(message string) {
 	t.ErrorMessage = message
 	if t.HasQueuedTask() {
 		t.QueuedTask.AppendDetails(message)
@@ -27,7 +27,7 @@ func (t *BaseTaskHandler) LogError(message string) {
 	}
 }
 
-func (t *BaseTaskHandler) LogInfo(message string) {
+func (t *TaskHandlerBase) LogInfo(message string) {
 	t.InfoMessage = message
 	if t.HasQueuedTask() {
 		t.QueuedTask.AppendDetails(message)
@@ -36,7 +36,7 @@ func (t *BaseTaskHandler) LogInfo(message string) {
 	}
 }
 
-func (task *BaseTaskHandler) LogSuccess(message string) {
+func (task *TaskHandlerBase) LogSuccess(message string) {
 	task.SuccessMessage = message
 	if task.HasQueuedTask() {
 		task.QueuedTask.AppendDetails(message)
@@ -45,7 +45,7 @@ func (task *BaseTaskHandler) LogSuccess(message string) {
 	}
 }
 
-func (t *BaseTaskHandler) GetParam(paramName string, opts TaskHandlerOptions) string {
+func (t *TaskHandlerBase) GetParam(paramName string, opts TaskHandlerOptions) string {
 	if opts.QueuedTask != nil {
 		parameters, parametersErr := opts.QueuedTask.GetParameters()
 		if parametersErr != nil {
@@ -64,7 +64,7 @@ func (t *BaseTaskHandler) GetParam(paramName string, opts TaskHandlerOptions) st
 	}
 }
 
-func (t *BaseTaskHandler) GetParamArray(paramName string, opts TaskHandlerOptions) []string {
+func (t *TaskHandlerBase) GetParamArray(paramName string, opts TaskHandlerOptions) []string {
 	if opts.QueuedTask != nil {
 		parameters, parametersErr := opts.QueuedTask.GetParameters()
 		if parametersErr != nil {

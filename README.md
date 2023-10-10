@@ -21,7 +21,7 @@ myTaskStore = taskstore.NewStore(taskstore.NewStoreOptions{
 })
 ```
 
-## Task Hadlers
+## Task Handlers
 
 Task handlers process the queued tasks. They must implement the TaskHandlerInterface, 
 and optionally extend the TaskHandlerBase struct for additional functionality

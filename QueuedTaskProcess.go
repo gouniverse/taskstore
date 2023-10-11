@@ -54,15 +54,25 @@ func (store *Store) taskHandlerFunc(taskAlias string) func(queuedTask *Queue) bo
 		return name
 	}
 
-	for i := 0; i < len(store.taskHandlers); i++ {
-		if strings.EqualFold(unifyName(store.taskHandlers[i].Alias()), unifyName(taskAlias)) {
+	for _, taskHandler := range store.taskHandlers {
+		if strings.EqualFold(unifyName(taskHandler.Alias()), unifyName(taskAlias)) {
 			return func(queuedTask *Queue) bool {
-				return store.taskHandlers[i].Handle(TaskHandlerOptions{
-					QueuedTask: queuedTask,
-				})
+				taskHandler.SetQueuedTask(queuedTask)
+				return taskHandler.Handle()
 			}
 		}
 	}
+
+	// for i := 0; i < len(store.taskHandlers); i++ {
+	// 	if strings.EqualFold(unifyName(store.taskHandlers[i].Alias()), unifyName(taskAlias)) {
+	// 		return func(queuedTask *Queue) bool {
+
+	// 			return store.taskHandlers[i].Handle(TaskHandlerOptions{
+	// 				QueuedTask: queuedTask,
+	// 			})
+	// 		}
+	// 	}
+	// }
 
 	return func(queuedTask *Queue) bool {
 		queuedTask.AppendDetails("No handler for alias: " + taskAlias)

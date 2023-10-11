@@ -7,49 +7,65 @@ import (
 )
 
 type TaskHandlerBase struct {
-	QueuedTask *Queue // dynamic
-
-	ErrorMessage   string
-	InfoMessage    string
-	SuccessMessage string
+	queuedTask     *Queue // dynamic
+	options        map[string]string
+	errorMessage   string
+	infoMessage    string
+	successMessage string
 }
 
-func (t *TaskHandlerBase) HasQueuedTask() bool {
-	return t.QueuedTask != nil
+func (handler *TaskHandlerBase) QueuedTask() *Queue {
+	return handler.queuedTask
 }
 
-func (t *TaskHandlerBase) LogError(message string) {
-	t.ErrorMessage = message
-	if t.HasQueuedTask() {
-		t.QueuedTask.AppendDetails(message)
+func (handler *TaskHandlerBase) SetQueuedTask(queuedTask *Queue) {
+	handler.queuedTask = queuedTask
+}
+
+func (handler *TaskHandlerBase) Options() map[string]string {
+	return handler.options
+}
+
+func (handler *TaskHandlerBase) SetOptions(options map[string]string) {
+	handler.options = options
+}
+
+func (handler *TaskHandlerBase) HasQueuedTask() bool {
+	return handler.queuedTask != nil
+}
+
+func (handler *TaskHandlerBase) LogError(message string) {
+	handler.errorMessage = message
+	if handler.HasQueuedTask() {
+		handler.queuedTask.AppendDetails(message)
 	} else {
 		cfmt.Errorln(message)
 	}
 }
 
-func (t *TaskHandlerBase) LogInfo(message string) {
-	t.InfoMessage = message
-	if t.HasQueuedTask() {
-		t.QueuedTask.AppendDetails(message)
+func (handler *TaskHandlerBase) LogInfo(message string) {
+	handler.infoMessage = message
+	if handler.HasQueuedTask() {
+		handler.queuedTask.AppendDetails(message)
 	} else {
 		cfmt.Infoln(message)
 	}
 }
 
-func (task *TaskHandlerBase) LogSuccess(message string) {
-	task.SuccessMessage = message
-	if task.HasQueuedTask() {
-		task.QueuedTask.AppendDetails(message)
+func (handler *TaskHandlerBase) LogSuccess(message string) {
+	handler.successMessage = message
+	if handler.HasQueuedTask() {
+		handler.queuedTask.AppendDetails(message)
 	} else {
 		cfmt.Successln(message)
 	}
 }
 
-func (t *TaskHandlerBase) GetParam(paramName string, opts TaskHandlerOptions) string {
-	if opts.QueuedTask != nil {
-		parameters, parametersErr := opts.QueuedTask.GetParameters()
+func (handler *TaskHandlerBase) GetParam(paramName string) string {
+	if handler.queuedTask != nil {
+		parameters, parametersErr := handler.queuedTask.GetParameters()
 		if parametersErr != nil {
-			opts.QueuedTask.AppendDetails("Parameters JSON incorrect. " + parametersErr.Error())
+			handler.queuedTask.AppendDetails("Parameters JSON incorrect. " + parametersErr.Error())
 			return ""
 		}
 
@@ -60,15 +76,15 @@ func (t *TaskHandlerBase) GetParam(paramName string, opts TaskHandlerOptions) st
 
 		return parameter.(string)
 	} else {
-		return opts.Arguments[paramName]
+		return handler.options[paramName]
 	}
 }
 
-func (t *TaskHandlerBase) GetParamArray(paramName string, opts TaskHandlerOptions) []string {
-	if opts.QueuedTask != nil {
-		parameters, parametersErr := opts.QueuedTask.GetParameters()
+func (handler *TaskHandlerBase) GetParamArray(paramName string) []string {
+	if handler.queuedTask != nil {
+		parameters, parametersErr := handler.queuedTask.GetParameters()
 		if parametersErr != nil {
-			opts.QueuedTask.AppendDetails("Parameters JSON incorrect. " + parametersErr.Error())
+			handler.queuedTask.AppendDetails("Parameters JSON incorrect. " + parametersErr.Error())
 			return []string{}
 		}
 
@@ -84,6 +100,6 @@ func (t *TaskHandlerBase) GetParamArray(paramName string, opts TaskHandlerOption
 		}
 		return paramValuesString
 	} else {
-		return strings.Split(opts.Arguments[paramName], ";")
+		return strings.Split(handler.options[paramName], ";")
 	}
 }

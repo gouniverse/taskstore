@@ -7,5 +7,9 @@ type TaskHandlerInterface interface {
 
 	Description() string
 
-	Handle(opts TaskHandlerOptions) bool
+	Handle() bool
+
+	SetQueuedTask(queuedTask *Queue)
+
+	SetOptions(options map[string]string)
 }

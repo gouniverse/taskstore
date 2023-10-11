@@ -1,9 +1,9 @@
 package taskstore
 
-type TaskHandlerOptions struct {
-	QueuedTask *Queue
-	Arguments  map[string]string
-}
+// type TaskHandlerOptions struct {
+// 	QueuedTask *Queue
+// 	Arguments  map[string]string
+// }
 
 // func (opts TaskOptions) HasTask() bool {
 // 	return opts.QueuedTask != nil

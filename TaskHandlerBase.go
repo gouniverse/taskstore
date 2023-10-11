@@ -14,6 +14,18 @@ type TaskHandlerBase struct {
 	successMessage string
 }
 
+func (handler *TaskHandlerBase) ErrorMessage() string {
+	return handler.errorMessage
+}
+
+func (handler *TaskHandlerBase) InfoMessage() string {
+	return handler.infoMessage
+}
+
+func (handler *TaskHandlerBase) SuccessMessage() string {
+	return handler.successMessage
+}
+
 func (handler *TaskHandlerBase) QueuedTask() *Queue {
 	return handler.queuedTask
 }

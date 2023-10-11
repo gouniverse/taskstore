@@ -59,16 +59,18 @@ func (handler *HelloWorldTaskHandler) Enqueue() (task *taskstore.Queue, err erro
 	return myTaskStore.TaskEnqueueByAlias(handler.Alias(), map[string]any{})
 }
 
-func (handler *HelloWorldTaskHandler) Handle(opts taskstore.TaskHandlerOptions) bool {
+func (handler *HelloWorldTaskHandler) Handle() bool {
 
         // Optional to allow adding the task to the queue manually. Useful while in development
-	if !handler.HasQueuedTask() && handler.GetParam("enqueue", opts) == "yes" {
+	if !handler.HasQueuedTask() && handler.GetParam("enqueue") == "yes" {
 		_, err := handler.Enqueue()
+
 		if err != nil {
-			handler.LogError("Error enqueing task: " + err.Error())
+			handler.LogError("Error enqueuing task: " + err.Error())
 		} else {
 			handler.LogSuccess("Task enqueued.")
 		}
+		
 		return true
 	}
 

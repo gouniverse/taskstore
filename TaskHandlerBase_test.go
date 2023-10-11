@@ -2,19 +2,25 @@ package taskstore
 
 import (
 	"testing"
+
+	"github.com/mingrammer/cfmt"
 )
 
-func Test_TaskHandlerBase_SqlCreateQueueTable(t *testing.T) {
+func Test_TaskHandlerBase(t *testing.T) {
 	handler := newTestTaskHandler()
 
 	handler.SetOptions(map[string]string{
-		"completeWithSucceed": "yes",
+		"completeWithSuccess": "yes",
 	})
 
 	isOK := handler.Handle()
 
 	if !isOK {
-		t.Fatalf("Test 1: Error in Handling Task")
+		t.Fatalf("Test 1: Must be successful")
+	}
+
+	if handler.SuccessMessage() != "Task forced to succeed." {
+		t.Fatalf("Test 1: Message must be 'Task forced to succeed.', but found: %s", handler.SuccessMessage())
 	}
 
 	handler2 := newTestTaskHandler()
@@ -25,19 +31,13 @@ func Test_TaskHandlerBase_SqlCreateQueueTable(t *testing.T) {
 
 	isOK = handler2.Handle()
 
-	if !isOK {
-		t.Fatalf("Test 2: Error in Handling Task")
+	if isOK {
+		t.Fatalf("Test 2: Must Fail")
 	}
 
-	// store, err := InitStore("test_queue_table_create.db")
-	// if err != nil {
-	// 	t.Fatalf("SqlCreateQueueTable: Error[%v]", err)
-	// }
-
-	// query := store.SqlCreateQueueTable()
-	// if strings.Contains(query, "unsupported driver") {
-	// 	t.Fatalf("SqlCreateQueueTable: Unexpected Query, received [%v]", query)
-	// }
+	if handler2.ErrorMessage() != "Task forced to fail." {
+		t.Fatalf("Test 2: Message must be 'Task forced to fail.', but found: %s", handler2.ErrorMessage())
+	}
 }
 
 func newTestTaskHandler() *testTaskHandler {
@@ -62,33 +62,19 @@ func (handler *testTaskHandler) Description() string {
 	return "Say hello world"
 }
 
-// Enqueue. Optional shortcut to quickly add this task to the queue
-// func (handler *testHelloWorldTaskHandler) Enqueue() (task *Queue, err error) {
-// 	return myTaskStore.TaskEnqueueByAlias(handler.Alias(), map[string]any{})
-// }
-
 func (handler *testTaskHandler) Handle() bool {
-	if handler.GetParam("completeWithSucceed") == "yes" {
-		handler.LogSuccess("Task completed successfully.")
+	cfmt.Warningln("Param 1", handler.GetParam("completeWithSuccess"))
+	cfmt.Warningln("Param 2", handler.GetParam("completeWithFail"))
+
+	if handler.GetParam("completeWithSuccess") == "yes" {
+		handler.LogSuccess("Task forced to succeed.")
 		return true
 	}
 
 	if handler.GetParam("completeWithFail") == "yes" {
-		handler.LogError("Task completed with error.")
-		return true
+		handler.LogError("Task forced to fail.")
+		return false
 	}
 
-	// 	// Optional to allow adding the task to the queue manually. Useful while in development
-	// 	if !handler.HasQueuedTask() && handler.GetParam("enqueue") == "yes" {
-	// 		_, err := handler.Enqueue()
-	// 		if err != nil {
-	// 			handler.LogError("Error enqueing task: " + err.Error())
-	// 		} else {
-	// 			handler.LogSuccess("Task enqueued.")
-	// 		}
-	// 		return true
-	// 	}
-
-	handler.LogInfo("Hello World!")
-	return true
+	return false
 }

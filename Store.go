@@ -94,8 +94,9 @@ func (st *Store) AutoMigrate() error {
 }
 
 // EnableDebug - enables the debug option
-func (st *Store) EnableDebug(debugEnabled bool) {
+func (st *Store) EnableDebug(debugEnabled bool) *Store {
 	st.debugEnabled = debugEnabled
+	return st
 }
 
 // TaskEnqueueByAlias finds a task by its alias and appends it to the queue

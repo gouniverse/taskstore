@@ -241,7 +241,7 @@ func Test_Queue_QueueList(t *testing.T) {
 	// if err != nil {
 	// 	t.Fatalf("QueueList: Error[%v]", err)
 	// }
-	list, err := store.QueueList(QueueListOptions{
+	list, err := store.QueueList(QueueQueryOptions{
 		Status:    QueueStatusQueued,
 		Limit:     10,
 		SortOrder: "asc",

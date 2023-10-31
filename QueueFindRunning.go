@@ -1,7 +1,7 @@
 package taskstore
 
 func (store *Store) QueueFindRunning(limit int) []Queue {
-	runningTasks, errList := store.QueueList(QueueListOptions{
+	runningTasks, errList := store.QueueList(QueueQueryOptions{
 		Status:    QueueStatusRunning,
 		Limit:     limit,
 		SortBy:    "created_at",

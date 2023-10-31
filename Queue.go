@@ -107,14 +107,16 @@ func (st *Store) QueueCreate(queue *Queue) error {
 	return nil
 }
 
-type QueueListOptions struct {
+type QueueQueryOptions struct {
+	Offset    int64
 	Status    string
 	Limit     int
 	SortBy    string
 	SortOrder string
+	CountOnly bool
 }
 
-func (st *Store) QueueList(options QueueListOptions) ([]Queue, error) {
+func (st *Store) queueQuery(options QueueQueryOptions) *goqu.SelectDataset {
 	q := goqu.Dialect(st.dbDriverName).From(st.queueTableName)
 
 	if options.Status != "" {
@@ -134,6 +136,57 @@ func (st *Store) QueueList(options QueueListOptions) ([]Queue, error) {
 	if options.Limit != 0 {
 		q = q.Limit(uint(options.Limit))
 	}
+
+	if options.Offset != 0 && !options.CountOnly {
+		q = q.Offset(uint(options.Offset))
+	}
+
+	return q
+}
+
+func (st *Store) QueueCount(options QueueQueryOptions) (int64, error) {
+	options.CountOnly = true
+
+	q := st.queueQuery(options)
+
+	sqlStr, _, errSql := q.Limit(1).Select(goqu.COUNT(goqu.Star()).As("count")).ToSQL()
+
+	if errSql != nil {
+		return -1, nil
+	}
+
+	if st.debugEnabled {
+		log.Println(sqlStr)
+	}
+
+	type Count struct {
+		Count int64 `db:"count"`
+	}
+	count := []Count{}
+	err := sqlscan.Select(context.Background(), st.db, &count, sqlStr)
+
+	if err != nil {
+		if err.Error() == sql.ErrNoRows.Error() {
+			return 0, nil
+		}
+
+		if sqlscan.NotFound(err) {
+			return 0, nil
+		}
+
+		log.Println("QueueStore. QueueList. Error: ", err)
+		return 0, err
+	}
+
+	if len(count) == 0 {
+		return 0, nil
+	}
+
+	return count[0].Count, err
+}
+
+func (st *Store) QueueList(options QueueQueryOptions) ([]Queue, error) {
+	q := st.queueQuery(options)
 
 	sqlStr, _, _ := q.Select().ToSQL()
 

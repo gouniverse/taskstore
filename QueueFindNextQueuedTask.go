@@ -5,7 +5,7 @@ import "log"
 // QueueFindNextQueuedTask finds the next queued task
 // that is ready to be processed
 func (store *Store) QueueFindNextQueuedTask() *Queue {
-	queuedTasks, errList := store.QueueList(QueueListOptions{
+	queuedTasks, errList := store.QueueList(QueueQueryOptions{
 		Status:    QueueStatusQueued,
 		Limit:     1,
 		SortBy:    "created_at",

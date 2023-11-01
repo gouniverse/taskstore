@@ -214,36 +214,40 @@ func (st *Store) QueueList(options QueueQueryOptions) ([]Queue, error) {
 }
 
 // QueueFindByID finds a Queue by ID
-func (st *Store) QueueFindByID(id string) *Queue {
-	sqlStr, _, _ := goqu.Dialect(st.dbDriverName).
+func (st *Store) QueueFindByID(id string) (*Queue, error) {
+	sqlStr, _, err := goqu.Dialect(st.dbDriverName).
 		From(st.queueTableName).
 		Where(goqu.C("id").Eq(id), goqu.C("deleted_at").IsNull()).
 		Select().
 		Limit(1).
 		ToSQL()
 
+	if err != nil {
+		return nil, err
+	}
+
 	if st.debugEnabled {
 		log.Println(sqlStr)
 	}
 
 	var Queue Queue
-	err := sqlscan.Get(context.Background(), st.db, &Queue, sqlStr)
+	err = sqlscan.Get(context.Background(), st.db, &Queue, sqlStr)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// sqlscan does not use this anymore
-			return nil
+			return nil, nil
 		}
 
 		if sqlscan.NotFound(err) {
-			return nil
+			return nil, nil
 		}
 
 		log.Println("QueueStore. QueueFindByID. Error: ", err)
-		return nil
+		return nil, err
 	}
 
-	return &Queue
+	return &Queue, nil
 }
 
 // QueueUpdate creates a Queue
@@ -270,72 +274,4 @@ func (st *Store) QueueUpdate(queue *Queue) error {
 	}
 
 	return nil
-}
-
-// SqlCreateQueueTable returns a SQL string for creating the Queue table
-func (st *Store) SqlCreateQueueTable() string {
-	sqlMysql := `
-	CREATE TABLE IF NOT EXISTS ` + st.queueTableName + ` (
-	  id             varchar(40) NOT NULL PRIMARY KEY,
-	  status         varchar(40) NOT NULL,
-	  task_id  varchar(40) NOT NULL,
-	  parameters     text        NOT NULL,
-	  output         longtext    DEFAULT NULL,
-	  details        longtext    DEFAULT NULL,
-	  attempts       int         DEFAULT 0,
-	  started_at     datetime    DEFAULT NULL,
-	  completed_at   datetime    DEFAULT NULL,
-	  created_at	 datetime,
-	  updated_at	 datetime,	
-	  deleted_at	 datetime    DEFAULT NULL
-	);
-	`
-
-	sqlPostgres := `
-	CREATE TABLE IF NOT EXISTS "` + st.queueTableName + `" (
-	  "id"            varchar(40)    NOT NULL PRIMARY KEY,
-	  "status"        varchar(40)    NOT NULL,
-	  "task_id" varchar(40)    NOT NULL,
-	  "parameters"    varchar(40)    NOT NULL,
-	  "output"        longtext       DEFAULT NULL,
-	  "details"       longtext       DEFAULT NULL,
-	  "attempts"      int            DEFAULT 0,
-	  "started_at"    timestamptz(6) DEFAULT NULL,
-	  "completed_at"  timestamptz(6) DEFAULT NULL,
-	  "created_at"    timestamptz(6) NOT NULL,
-	  "updated_at"    timestamptz(6) NOT NULL,
-	  "deleted_at"    timestamptz(6) DEFAULT NULL
-	)
-	`
-
-	sqlSqlite := `
-	CREATE TABLE IF NOT EXISTS "` + st.queueTableName + `" (
-	  "id"            varchar(40) NOT NULL PRIMARY KEY,
-	  "status"        varchar(40) NOT NULL,
-	  "task_id" varchar(40) NOT NULL,
-	  "parameters"    varchar(40) NOT NULL,
-	  "output"        text  DEFAULT NULL,
-	  "details"       text  DEFAULT NULL,
-	  "attempts"      int   DEFAULT 0,
-	  "started_at"    datetime  DEFAULT NULL,
-	  "completed_at"  datetime  DEFAULT NULL,
-	  "created_at"    datetime NOT NULL,
-	  "updated_at"    datetime NOT NULL,
-	  "deleted_at"    datetime DEFAULT NULL
-	)
-	`
-
-	sql := "unsupported driver " + st.dbDriverName
-
-	if st.dbDriverName == "mysql" {
-		sql = sqlMysql
-	}
-	if st.dbDriverName == "postgres" {
-		sql = sqlPostgres
-	}
-	if st.dbDriverName == "sqlite" {
-		sql = sqlSqlite
-	}
-
-	return sql
 }

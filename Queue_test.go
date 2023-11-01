@@ -105,7 +105,7 @@ func Test_Store_QueueFail(t *testing.T) {
 		t.Fatalf("QueueFail: Error[%v]", err)
 	}
 
-	task := NewQueue()
+	queuedTask := NewQueue()
 	query := store.SqlCreateQueueTable()
 	if strings.Contains(query, "unsupported driver") {
 		t.Fatalf("QueueFail: UnExpected Query, received [%v]", query)
@@ -116,12 +116,12 @@ func Test_Store_QueueFail(t *testing.T) {
 		t.Fatalf("QueueFail: Table creation error: [%v]", err)
 	}
 
-	err = store.QueueCreate(task)
+	err = store.QueueCreate(queuedTask)
 	if err != nil {
 		t.Fatalf("QueueFail: Error in Creating Queue: received [%v]", err)
 	}
 
-	err = store.QueueFail(task)
+	err = store.QueueFail(queuedTask)
 	if err != nil {
 		t.Fatalf("QueueFail: Error in Fail Queue: received [%v]", err)
 	}
@@ -149,7 +149,11 @@ func Test_Store_QueueFindByID(t *testing.T) {
 	}
 
 	id := task.ID
-	queue := store.QueueFindByID(id)
+	queue, err := store.QueueFindByID(id)
+	if err != nil {
+		t.Fatalf("QueueFindByID: Error in QueueFindByID: received [%v]", err)
+	}
+
 	if queue == nil {
 		t.Fatalf("QueueFindByID: Error in Finding Queue: ID [%v]", id)
 	}

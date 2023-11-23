@@ -103,6 +103,13 @@ func (task *HelloWorldTask) Handle() bool {
 	return true
 }
 ```
+## Registering the Tasks to the TaskStore
+
+Registering the task to the task store will persist it in the database.
+
+```
+myTaskStore.TaskHandlerAdd(tasks.HelloWorldTask(), true)
+```
 
 ## Store Methods
 

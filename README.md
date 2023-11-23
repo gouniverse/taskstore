@@ -114,7 +114,7 @@ myTaskStore.TaskHandlerAdd(tasks.HelloWorldTask(), true)
 
 ## Adding the Task to the Queue
 
-To add a task to the queue, you can use the store
+To add a task to the queue
 
 ```
 myTaskStore.TaskEnqueueByAlias(NewHelloWorldTask.Alias(), map[string]any{

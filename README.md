@@ -111,6 +111,22 @@ Registering the task to the task store will persist it in the database.
 myTaskStore.TaskHandlerAdd(tasks.HelloWorldTask(), true)
 ```
 
+
+## Adding the Task to the Queue
+
+To add a task to the queue, you can use the store
+
+```
+myTaskStore.TaskEnqueueByAlias(NewHelloWorldTask.Alias(), map[string]any{
+	"name": name,
+})
+```
+
+Or if you have defined an Enqueue method as in the example task above.
+```
+NewHelloWorldTask().Enqueue("Tom Jones")
+```
+
 ## Store Methods
 
 - AutoMigrate() error - automigrate (creates) the task and queue table

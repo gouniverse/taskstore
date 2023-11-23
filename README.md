@@ -5,6 +5,12 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/gouniverse/taskstore)](https://goreportcard.com/report/github.com/gouniverse/taskstore)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/gouniverse/taskstore)](https://pkg.go.dev/github.com/gouniverse/taskstore)
 
+TaskStore is a package to queue tasks and perform work asynchronously in the background, outside of the regular application flow.
+
+The queue is stored in the database - SQLite, MySQL or PostgreSQL
+
+## Installation
+
 ```
 go get github.com/gouniverse/taskstore
 ```
@@ -21,74 +27,97 @@ myTaskStore = taskstore.NewStore(taskstore.NewStoreOptions{
 })
 ```
 
-## Task Handlers
+## Tasks
 
-Task handlers process the queued tasks. They must implement the TaskHandlerInterface, 
-and optionally extend the TaskHandlerBase struct for additional functionality
+The task specifies a unit of work to be completed. It can be completed on the fly, 
+or queued to the database to be completed in the background outside of
+the regular application flow.
+
+Each task has an alias (human readable identificator) that allows you to call the task,
+and a title and description to give you more information on the task.
+
+The task must implement the TaskHandlerInterface, and also define a handle method, 
+which will be called to complete the queued task. 
+
+The task may (optional) extend the TaskHandlerBase struct for additional functionality
 i.e. getting task parameters, etc.
 
-The task handlers can be run directly on the CLI, or as part of a background queue.
+The tasks can be run directly on the terminal (CLI), or as part of a background queue.
+
+The tasks placed in the queue will be processed at the specified interval.
 
 ```golang
-package taskhandlers
+package tasks
 
-func NewHelloWorldTaskHandler() *HelloWorldTaskHandler {
-	return &HelloWorldTaskHandler{}
+func NewHelloWorldTask() *HelloWorldTask {
+	return &HelloWorldTask{}
 }
 
-type HelloWorldTaskHandler struct {
+type HelloWorldTask struct {
 	taskstore.TaskHandlerBase
 }
 
-var _ taskstore.TaskHandlerInterface = (*HelloWorldTaskHandler)(nil) // verify it extends the task interface
+var _ taskstore.TaskHandlerInterface = (*HelloWorldTask)(nil) // verify it extends the task handler interface
 
-func (handler *HelloWorldTaskHandler) Alias() string {
-	return "HelloWorldTaskHandler"
+func (task *HelloWorldTask) Alias() string {
+	return "HelloWorldTask"
 }
 
-func (handler *HelloWorldTaskHandler) Title() string {
+func (task *HelloWorldTask) Title() string {
 	return "Hello World"
 }
 
-func (handler *HelloWorldTaskHandler) Description() string {
+func (task *HelloWorldTask) Description() string {
 	return "Say hello world"
 }
 
 // Enqueue. Optional shortcut to quickly add this task to the queue
-func (handler *HelloWorldTaskHandler) Enqueue() (task *taskstore.Queue, err error) {
-	return myTaskStore.TaskEnqueueByAlias(handler.Alias(), map[string]any{})
+func (task *HelloWorldTask) Enqueue(name string) (task *taskstore.Queue, err error) {
+	return myTaskStore.TaskEnqueueByAlias(task.Alias(), map[string]any{
+		"name": name,
+	})
 }
 
-func (handler *HelloWorldTaskHandler) Handle() bool {
+func (task *HelloWorldTask) Handle() bool {
+	name := handler.GetParam("name")
 
         // Optional to allow adding the task to the queue manually. Useful while in development
-	if !handler.HasQueuedTask() && handler.GetParam("enqueue") == "yes" {
-		_, err := handler.Enqueue()
+	if !task.HasQueuedTask() && task.GetParam("enqueue") == "yes" {
+		_, err := handler.Enqueue(name)
 
 		if err != nil {
-			handler.LogError("Error enqueuing task: " + err.Error())
+			task.LogError("Error enqueuing task: " + err.Error())
 		} else {
-			handler.LogSuccess("Task enqueued.")
+			task.LogSuccess("Task enqueued.")
 		}
 		
 		return true
 	}
 
-	handler.LogInfo("Hello World!")
+        if name != "" {
+		task.LogInfo("Hello" + name + "!")	
+	} else {
+		task.LogInfo("Hello World!")
+	}
+
 	return true
 }
 ```
 
-## Methods
+## Store Methods
 
 - AutoMigrate() error - automigrate (creates) the task and queue table
 - EnableDebug(debug bool) - enables / disables the debug option
+
+## Task Methods
 - TaskCreate(Task *Task) (bool, error) -  creates a Task
 - TaskEnqueueByAlias(taskAlias string, parameters map[string]interface{}) (*Queue, error) -  finds a task by its alias and appends it to the queue
 - TaskList(options map[string]string) ([]Task, error) - lists tasks
 - TaskFindByAlias(alias string) *Task - finds a Task by alias
 - TaskFindByID(id string) *Task - finds a task by ID
 - TaskUpdate(Task *Task) bool - updates a task
+
+## Queue Methods
 - QueueCreate(queue *Queue) error - creates a new queued task
 - QueueDeleteByID(id string) *Queue - deleted a queued task by ID
 - QueueFindByID(id string) *Queue - finds a queued task by ID

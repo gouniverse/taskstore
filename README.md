@@ -111,10 +111,22 @@ Registering the task to the task store will persist it in the database.
 myTaskStore.TaskHandlerAdd(NewHelloWorldTask(), true)
 ```
 
+## Executing Taks in the Terminal
+
+To add the option to execute tasks from the terminal add the following to your main method
+
+```
+myTaskStore.TaskExecuteCli(args[1], args[1:])
+```
+
+Example:
+```
+go run . HelloWorldTask --name="Tom Jones"
+```
 
 ## Adding the Task to the Queue
 
-To add a task to the queue
+To add a task to the background queue
 
 ```
 myTaskStore.TaskEnqueueByAlias(NewHelloWorldTask.Alias(), map[string]any{

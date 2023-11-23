@@ -127,6 +127,16 @@ Or if you have defined an Enqueue method as in the example task above.
 NewHelloWorldTask().Enqueue("Tom Jones")
 ```
 
+## Starting the Queue
+
+To start the queue call the QueueRunGoroutine. 
+It allows you to specify the interval for processing the queued tasks (i.e. every 10 seconds)
+Also to set timeout for queued tasks. After a queued task is started if it has not completed in the specified timeout it will be marked as failed, and the rest of he tasks will start to be processed.
+
+```
+myTaskStore.QueueRunGoroutine(10, 2) // every 10s, unstuck after 2 mins
+```
+
 ## Store Methods
 
 - AutoMigrate() error - automigrate (creates) the task and queue table

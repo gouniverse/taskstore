@@ -89,11 +89,13 @@ func (handler *HelloWorldTaskHandler) Handle() bool {
 - TaskFindByAlias(alias string) *Task - finds a Task by alias
 - TaskFindByID(id string) *Task - finds a task by ID
 - TaskUpdate(Task *Task) bool - updates a task
-- QueueFail(queue *Queue) error - fails a queued task
-- QueueSuccess(queue *Queue) error -  completes a queued task  successfully
 - QueueCreate(queue *Queue) error - creates a new queued task
-- QueueList(options QueueListOptions) ([]Queue, error) - lists the queued tasks
+- QueueDeleteByID(id string) *Queue - deleted a queued task by ID
 - QueueFindByID(id string) *Queue - finds a queued task by ID
+- QueueFail(queue *Queue) error - fails a queued task
+- QueueSoftDeleteByID(id string) *Queue - soft delete a queued task by ID (populates the deleted_at field)
+- QueueSuccess(queue *Queue) error -  completes a queued task  successfully
+- QueueList(options QueueListOptions) ([]Queue, error) - lists the queued tasks
 - QueueUpdate(queue *Queue) error - updates a queued task
 - Queue > GetParameters() (map[string]interface{}, error) - gets the parameters of the queued task
 - Queue > AppendDetails(details string) - appends details to the queued task

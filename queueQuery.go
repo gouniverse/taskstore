@@ -3,13 +3,15 @@ package taskstore
 import "github.com/doug-martin/goqu/v9"
 
 type QueueQueryOptions struct {
-	TaskID    string
-	Status    string
-	Offset    int64
-	Limit     int
-	SortBy    string
-	SortOrder string
-	CountOnly bool
+	TaskID            string
+	Status            string
+	CreatedAtLessThan string
+	UpdatedAtLessThan string
+	Offset            int64
+	Limit             int
+	SortBy            string
+	SortOrder         string
+	CountOnly         bool
 }
 
 func (st *Store) queueQuery(options QueueQueryOptions) *goqu.SelectDataset {
@@ -21,6 +23,14 @@ func (st *Store) queueQuery(options QueueQueryOptions) *goqu.SelectDataset {
 
 	if options.TaskID != "" {
 		q = q.Where(goqu.C("task_id").Eq(options.TaskID))
+	}
+
+	if options.CreatedAtLessThan != "" {
+		q = q.Where(goqu.C("created_at").Lt(options.CreatedAtLessThan))
+	}
+
+	if options.UpdatedAtLessThan != "" {
+		q = q.Where(goqu.C("updated_at").Lt(options.UpdatedAtLessThan))
 	}
 
 	if options.SortBy != "" {

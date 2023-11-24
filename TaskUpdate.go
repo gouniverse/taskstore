@@ -7,14 +7,14 @@ import (
 	"github.com/doug-martin/goqu/v9"
 )
 
-// QueueUpdate creates a Queue
-func (st *Store) QueueUpdate(queue *Queue) error {
-	queue.UpdatedAt = time.Now()
+// TaskUpdate updates a Task
+func (st *Store) TaskUpdate(task *Task) error {
+	task.UpdatedAt = time.Now()
 
 	sqlStr, _, _ := goqu.Dialect(st.dbDriverName).
 		Update(st.queueTableName).
-		Where(goqu.C("id").Eq(queue.ID)).
-		Set(queue).
+		Where(goqu.C("id").Eq(task.ID)).
+		Set(task).
 		ToSQL()
 
 	if st.debugEnabled {

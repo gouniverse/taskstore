@@ -19,6 +19,8 @@ require (
 require (
 	github.com/darkoatanasovski/htmltags v1.0.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
+	github.com/go-co-op/gocron v1.36.0 // indirect
+	github.com/google/uuid v1.4.0 // indirect
 	github.com/gouniverse/api v1.5.0 // indirect
 	github.com/gouniverse/maputils v0.2.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
@@ -26,9 +28,11 @@ require (
 	github.com/logrusorgru/aurora v2.0.3+incompatible // indirect
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/samber/lo v1.38.1 // indirect
 	github.com/tdewolff/minify/v2 v2.20.7 // indirect
 	github.com/tdewolff/parse/v2 v2.7.5 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/crypto v0.15.0 // indirect
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/net v0.18.0 // indirect

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	sb "github.com/gouniverse/sql"
+	"github.com/gouniverse/sb"
 )
 
 // Store defines a session store

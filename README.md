@@ -176,6 +176,7 @@ myTaskStore.QueueRunGoroutine(10, 2) // every 10s, unstuck after 2 mins
 
 ## Similar
 
+- https://github.com/harshadmanglani/polaris
 - https://github.com/bamzi/jobrunner
 - https://github.com/rk/go-cron
 - https://github.com/fieldryand/goflow

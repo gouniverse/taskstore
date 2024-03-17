@@ -7,7 +7,12 @@ import (
 )
 
 func NewQueue() *Queue {
-	return &Queue{}
+	// nilTime := carbon.Parse(sb.NULL_DATETIME).ToStdTime()
+	queue := &Queue{}
+	// queue.Parameters = "{}"
+	// queue.StartedAt = &nilTime
+	// queue.CompletedAt = &nilTime
+	return queue
 }
 
 func Test_Store_SqlCreateQueueTable(t *testing.T) {

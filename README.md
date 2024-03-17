@@ -7,7 +7,7 @@
 
 TaskStore is a package to queue tasks and perform work asynchronously in the background, outside of the regular application flow.
 
-The queue is stored in the database - SQLite, MySQL or PostgreSQL
+The queue is durable and stored in the database - SQLite, MySQL or PostgreSQL
 
 ## Installation
 
@@ -20,7 +20,7 @@ go get github.com/gouniverse/taskstore
 ```golang
 myTaskStore = taskstore.NewStore(taskstore.NewStoreOptions{
 	DB:                 databaseInstance,
-    	TaskTableName:      "my_task"
+    TaskTableName:      "my_task"
 	QueueTableName:     "my_queue",
 	AutomigrateEnabled: true,
 	DebugEnabled:       false,
@@ -33,7 +33,7 @@ The task specifies a unit of work to be completed. It can be completed on the fl
 or queued to the database to be completed in the background outside of
 the regular application flow.
 
-Each task has an alias (human readable identificator) that allows you to call the task,
+Each task has an alias (human readable identification) that allows you to call the task,
 and a title and description to give you more information on the task.
 
 The task must implement the TaskHandlerInterface, and also define a handle method, 
@@ -111,7 +111,7 @@ Registering the task to the task store will persist it in the database.
 myTaskStore.TaskHandlerAdd(NewHelloWorldTask(), true)
 ```
 
-## Executing Taks in the Terminal
+## Executing Tasks in the Terminal
 
 To add the option to execute tasks from the terminal add the following to your main method
 
@@ -183,3 +183,4 @@ myTaskStore.QueueRunGoroutine(10, 2) // every 10s, unstuck after 2 mins
 - https://github.com/go-co-op/gocron
 - https://github.com/exograd/eventline
 - https://github.com/ajvb/kala
+- https://github.com/shiblon/taskstore

@@ -2,18 +2,6 @@ package taskstore
 
 import "github.com/doug-martin/goqu/v9"
 
-type QueueQueryOptions struct {
-	TaskID            string
-	Status            string
-	CreatedAtLessThan string
-	UpdatedAtLessThan string
-	Offset            int64
-	Limit             int
-	SortBy            string
-	SortOrder         string
-	CountOnly         bool
-}
-
 func (st *Store) queueQuery(options QueueQueryOptions) *goqu.SelectDataset {
 	q := goqu.Dialect(st.dbDriverName).From(st.queueTableName)
 

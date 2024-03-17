@@ -5,23 +5,12 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/doug-martin/goqu/v9"
 	"github.com/georgysavva/scany/sqlscan"
 )
 
-func (st *Store) TaskList(options map[string]string) ([]Task, error) {
-	status, statusExists := options[COLUMN_STATUS]
-	if !statusExists {
-		status = ""
-	}
+func (st *Store) TaskList(options TaskQueryOptions) ([]Task, error) {
+	q := st.taskQuery(options)
 
-	q := goqu.Dialect(st.dbDriverName).From(st.taskTableName)
-
-	if status != "" {
-		q = q.Where(goqu.C(COLUMN_STATUS).Eq(status))
-	}
-
-	q = q.Where(goqu.C(COLUMN_DELETED_AT).IsNull())
 	sqlStr, _, _ := q.Select().ToSQL()
 
 	if st.debugEnabled {
@@ -41,7 +30,6 @@ func (st *Store) TaskList(options map[string]string) ([]Task, error) {
 			return nil, nil
 		}
 
-		log.Println("TaskSTore. Error: ", err)
 		return nil, err
 	}
 

@@ -21,7 +21,8 @@ func (st *Store) QueueList(options QueueQueryOptions) ([]Queue, error) {
 	err := sqlscan.Select(context.Background(), st.db, &list, sqlStr)
 
 	if err != nil {
-		if err.Error() == sql.ErrNoRows.Error() {
+		if err == sql.ErrNoRows {
+			// sqlscan does not use this anymore
 			return nil, nil
 		}
 
@@ -29,7 +30,6 @@ func (st *Store) QueueList(options QueueQueryOptions) ([]Queue, error) {
 			return nil, nil
 		}
 
-		log.Println("QueueStore. QueueList. Error: ", err)
 		return nil, err
 	}
 

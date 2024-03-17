@@ -13,7 +13,7 @@ func (st *Store) TaskUpdate(task *Task) error {
 
 	sqlStr, _, _ := goqu.Dialect(st.dbDriverName).
 		Update(st.queueTableName).
-		Where(goqu.C("id").Eq(task.ID)).
+		Where(goqu.C(COLUMN_ID).Eq(task.ID)).
 		Set(task).
 		ToSQL()
 

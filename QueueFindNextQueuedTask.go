@@ -8,8 +8,8 @@ func (store *Store) QueueFindNextQueuedTask() *Queue {
 	queuedTasks, errList := store.QueueList(QueueQueryOptions{
 		Status:    QueueStatusQueued,
 		Limit:     1,
-		SortBy:    "created_at",
-		SortOrder: "asc",
+		SortBy:    COLUMN_CREATED_AT,
+		SortOrder: ASC,
 	})
 
 	if errList != nil {

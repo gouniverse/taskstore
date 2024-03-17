@@ -13,7 +13,7 @@ import (
 func (st *Store) TaskFindByID(id string) *Task {
 	sqlStr, _, _ := goqu.Dialect(st.dbDriverName).
 		From(st.taskTableName).
-		Where(goqu.C("id").Eq(id), goqu.C("deleted_at").IsNull()).
+		Where(goqu.C(COLUMN_ID).Eq(id), goqu.C(COLUMN_DELETED_AT).IsNull()).
 		Select().
 		Limit(1).
 		ToSQL()

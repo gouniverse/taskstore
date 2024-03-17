@@ -10,8 +10,8 @@ import (
 func (st *Store) QueueSoftDeleteByID(id string) error {
 	sqlStr, _, _ := goqu.Dialect(st.dbDriverName).
 		Update(st.queueTableName).
-		Where(goqu.C("id").Eq(id), goqu.C("deleted_at").IsNull()).
-		Set(goqu.Record{"deleted_at": time.Now()}).
+		Where(goqu.C(COLUMN_ID).Eq(id), goqu.C(COLUMN_DELETED_AT).IsNull()).
+		Set(goqu.Record{COLUMN_DELETED_AT: time.Now()}).
 		ToSQL()
 
 	if st.debugEnabled {

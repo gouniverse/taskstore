@@ -10,7 +10,7 @@ func (st *Store) QueueDeleteByID(id string) error {
 	sqlStr, preparedArgs, _ := goqu.Dialect(st.dbDriverName).
 		From(st.queueTableName).
 		Prepared(true).
-		Where(goqu.C("id").Eq(id)).
+		Where(goqu.C(COLUMN_ID).Eq(id)).
 		Delete().
 		ToSQL()
 

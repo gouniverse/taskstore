@@ -10,7 +10,7 @@ import (
 )
 
 func (st *Store) TaskList(options map[string]string) ([]Task, error) {
-	status, statusExists := options["status"]
+	status, statusExists := options[COLUMN_STATUS]
 	if !statusExists {
 		status = ""
 	}
@@ -18,10 +18,10 @@ func (st *Store) TaskList(options map[string]string) ([]Task, error) {
 	q := goqu.Dialect(st.dbDriverName).From(st.taskTableName)
 
 	if status != "" {
-		q = q.Where(goqu.C("status").Eq(status))
+		q = q.Where(goqu.C(COLUMN_STATUS).Eq(status))
 	}
 
-	q = q.Where(goqu.C("deleted_at").IsNull())
+	q = q.Where(goqu.C(COLUMN_DELETED_AT).IsNull())
 	sqlStr, _, _ := q.Select().ToSQL()
 
 	if st.debugEnabled {

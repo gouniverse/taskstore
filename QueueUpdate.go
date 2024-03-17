@@ -13,7 +13,7 @@ func (st *Store) QueueUpdate(queue *Queue) error {
 
 	sqlStr, _, _ := goqu.Dialect(st.dbDriverName).
 		Update(st.queueTableName).
-		Where(goqu.C("id").Eq(queue.ID)).
+		Where(goqu.C(COLUMN_ID).Eq(queue.ID)).
 		Set(queue).
 		ToSQL()
 

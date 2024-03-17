@@ -40,8 +40,8 @@ func Test_Queue_QueueList(t *testing.T) {
 	list, err := store.QueueList(QueueQueryOptions{
 		Status:    QueueStatusQueued,
 		Limit:     10,
-		SortOrder: "asc",
-		SortBy:    "id",
+		SortOrder: ASC,
+		SortBy:    COLUMN_DELETED_AT,
 	})
 
 	if err != nil {

@@ -44,8 +44,9 @@ func (st *Store) SqlCreateTaskTable() string {
 			Type: sb.COLUMN_TYPE_DATETIME,
 		}).
 		Column(sb.Column{
-			Name: COLUMN_DELETED_AT,
-			Type: sb.COLUMN_TYPE_DATETIME,
+			Name:     COLUMN_DELETED_AT,
+			Type:     sb.COLUMN_TYPE_DATETIME,
+			Nullable: true,
 		}).
 		CreateIfNotExists()
 

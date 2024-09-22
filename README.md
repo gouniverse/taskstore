@@ -9,6 +9,12 @@ TaskStore is a package to queue tasks and perform work asynchronously in the bac
 
 The queue is durable and stored in the database - SQLite, MySQL or PostgreSQL
 
+## License
+
+This project is licensed under the GNU General Public License version 3 (GPL-3.0). You can find a copy of the license at https://www.gnu.org/licenses/gpl-3.0.en.html
+
+For commercial use, please use my [contact page](https://lesichkov.co.uk/contact) to obtain a commercial license.
+
 ## Installation
 
 ```

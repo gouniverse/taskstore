@@ -37,22 +37,24 @@ myTaskStore = taskstore.NewStore(taskstore.NewStoreOptions{
 
 ## Tasks
 
-The task specifies a unit of work to be completed. It can be completed on the fly, 
-or queued to the database to be completed in the background outside of
-the regular application flow.
+The task specifies a unit of work to be completed. It can be performed immediately, 
+or enqueued to the database and deferreed for asynchronious processing, ensuring your
+application remains responsive.
 
-Each task has an alias (human readable identification) that allows you to call the task,
-and a title and description to give you more information on the task.
+Each task is uniquely identified by an alias and provides a human-readable title and description.
 
-The task must implement the TaskHandlerInterface, and also define a handle method, 
-which will be called to complete the queued task. 
+Each task is uniquely identified by an alias that allows the task to be easily called. 
+A human-readable title and description to give the user more information on the task.
 
-The task may (optional) extend the TaskHandlerBase struct for additional functionality
-i.e. getting task parameters, etc.
+To define a task, implement the TaskHandlerInterface and provide a Handle method
+that contains the task's logic.
 
-The tasks can be run directly on the terminal (CLI), or as part of a background queue.
+Optionally, extend the TaskHandlerBase struct for additional features like parameter
+retrieval.
 
-The tasks placed in the queue will be processed at the specified interval.
+Tasks can be executed directly from the command line (CLI) or as part of a background queue.
+
+The tasks placed in the queue will be processed at specified interval.
 
 ```golang
 package tasks
@@ -181,6 +183,51 @@ myTaskStore.QueueRunGoroutine(10, 2) // every 10s, unstuck after 2 mins
 - QueueUpdate(queue *Queue) error - updates a queued task
 - Queue > GetParameters() (map[string]interface{}, error) - gets the parameters of the queued task
 - Queue > AppendDetails(details string) - appends details to the queued task
+
+## Frequently Asked Questions (FAQ)
+
+### 1. What is TaskStore used for?
+TaskStore is a versatile tool for offloading time-consuming or resource-intensive
+tasks from your main application. By deferring these tasks to the background,
+you can improve application responsiveness and prevent performance bottlenecks.
+
+It's ideal for tasks like data processing, sending emails, generating reports,
+or performing batch operations.
+
+### 2. How does TaskStore work?
+TaskStore creates a durable queue in your database (SQLite, MySQL, or PostgreSQL)
+to store tasks. These tasks are then processed asynchronously by a background worker.
+You can define tasks using a simple interface and schedule them to be executed
+at specific intervals or on demand.
+
+### 3. What are the benefits of using TaskStore?
+
+- Improved application performance: Offload time-consuming tasks to prevent performance bottlenecks.
+- Asynchronous processing: Execute tasks independently of your main application flow.
+- Reliability: Ensure tasks are completed even if your application crashes.
+- Flexibility: Schedule tasks to run at specific intervals or on demand.
+- Ease of use: Define tasks using a simple interface and integrate with your existing application.
+
+### 4. How do I create a task in TaskStore?
+To create a task, you'll need to implement the TaskHandlerInterface and provide a Handle method that contains the task's logic. You can also extend the TaskHandlerBase struct for additional features.
+
+### 5. How do I schedule a task to run in the background?
+Use the TaskEnqueueByAlias method to add a task to the background queue. You can specify the interval at which the queue is processed using the QueueRunGoroutine method.
+
+### 6. Can I monitor the status of tasks?
+Yes, TaskStore provides methods to list tasks, check their status, and view task details.
+
+### 7. How does TaskStore handle task failures?
+If a task fails, it can be retried automatically or marked as failed. You can customize the retry logic to suit your specific needs.
+
+### 8. Is TaskStore suitable for large-scale applications?
+Yes, TaskStore is designed to handle large volumes of tasks. It can be scaled horizontally by adding more worker processes.
+
+### 9. Does TaskStore support different database systems?
+Yes, TaskStore supports SQLite, MySQL, and PostgreSQL.
+
+### 10. Can I customize TaskStore to fit my specific needs?
+Yes, TaskStore is highly customizable. You can extend and modify the code to suit your requirements.
 
 ## Similar
 

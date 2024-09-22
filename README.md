@@ -5,9 +5,11 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/gouniverse/taskstore)](https://goreportcard.com/report/github.com/gouniverse/taskstore)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/gouniverse/taskstore)](https://pkg.go.dev/github.com/gouniverse/taskstore)
 
-TaskStore is a package to queue tasks and perform work asynchronously in the background, outside of the regular application flow.
+TaskStore is a robust, asynchronous durable task queue package designed to offload time-consuming or resource-intensive operations from your main application.
 
-The queue is durable and stored in the database - SQLite, MySQL or PostgreSQL
+By deferring tasks to the background, you can improve application responsiveness and prevent performance bottlenecks.
+
+TaskStore leverages a durable database (SQLite, MySQL, or PostgreSQL) to ensure reliable persistence and fault tolerance.
 
 ## License
 

@@ -27,21 +27,11 @@ func Test_Queue_QueueList(t *testing.T) {
 		t.Fatalf("QueueList: Error in Creating Queue: received [%v]", err)
 	}
 
-	// u, err := json.Marshal(Temp{Status: "Bob", Limit: 10})
-	// if err != nil {
-	// 	t.Fatalf("%v", err)
-	// }
-	// task.Parameters = string(u)
-
-	// data, err := task.GetParameters()
-	// if err != nil {
-	// 	t.Fatalf("QueueList: Error[%v]", err)
-	// }
 	list, err := store.QueueList(QueueQueryOptions{
 		Status:    QueueStatusQueued,
 		Limit:     10,
 		SortOrder: ASC,
-		SortBy:    COLUMN_DELETED_AT,
+		SortBy:    COLUMN_CREATED_AT,
 	})
 
 	if err != nil {

@@ -1,8 +1,6 @@
 module github.com/gouniverse/taskstore
 
-go 1.23.1
-
-toolchain go1.23.3
+go 1.23.3
 
 require (
 	github.com/doug-martin/goqu/v9 v9.19.0

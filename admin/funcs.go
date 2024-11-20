@@ -23,7 +23,7 @@ func adminHeader(store taskstore.StoreInterface, logger *slog.Logger, r *http.Re
 		Class("nav-link")
 	linkTasks := hb.Hyperlink().
 		HTML("Tasks").
-		Href(url(r, pathQueueManager, nil)).
+		Href(url(r, pathTaskManager, nil)).
 		Class("nav-link")
 
 	queueCount, err := store.QueueCount(taskstore.QueueQuery())

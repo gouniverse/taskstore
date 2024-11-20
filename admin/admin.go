@@ -57,6 +57,18 @@ func (a *admin) handler() hb.TagInterface {
 		controller = pathQueueManager
 	}
 
+	if controller == pathTaskCreate {
+		return taskCreate(a.logger, a.store).ToTag(a.response, a.request)
+	}
+
+	if controller == pathTaskManager {
+		return taskManager(a.logger, a.store).ToTag(a.response, a.request)
+	}
+
+	if controller == pathTaskUpdate {
+		return taskUpdate(a.logger, a.store).ToTag(a.response, a.request)
+	}
+
 	if controller == pathQueueCreate {
 		// 	return queueCreateUi(a.logger, a.store).ToTag(a.response, a.request)
 		return hb.Div().Child(hb.H1().HTML(controller))

@@ -146,6 +146,10 @@ type TaskInterface interface {
 	DataChanged() map[string]string
 	MarkAsNotDirty()
 
+	IsActive() bool
+	IsCanceled() bool
+	IsSoftDeleted() bool
+
 	Alias() string
 	SetAlias(alias string) TaskInterface
 

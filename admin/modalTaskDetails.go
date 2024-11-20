@@ -5,31 +5,17 @@ import (
 	"github.com/gouniverse/hb"
 )
 
-func (controller *queueManagerController) modalQueuedTaskParameters(parameters string) hb.TagInterface {
+func (controller *queueManagerController) modalTaskDetails(details string) *hb.Tag {
 	modalCloseScript := `document.getElementById('ModalMessage').remove();document.getElementById('ModalBackdrop').remove();`
 
 	title := hb.Heading5().
-		Text("Queued Task Parameters").
+		Text("Queued Task Details").
 		Style(`margin:0px;padding:0px;`)
 
-	butonModalClose := hb.Button().Type("button").
+	buttonModalClose := hb.Button().Type("button").
 		Class("btn-close").
 		Data("bs-dismiss", "modal").
 		OnClick(modalCloseScript)
-
-	groupParameters := bs.FormGroup().
-		Child(
-			hb.Div().
-				HTML("Parameters:").
-				Style(`font-size:18px;color:black;font-weight:bold;`),
-		).
-		Child(
-			hb.TextArea().
-				Class("form-control").
-				Style(`height:300px;`).
-				Name("parameters").
-				HTML(parameters),
-		)
 
 	buttonCancel := hb.Button().
 		Child(hb.I().Class("bi bi-chevron-left me-2")).
@@ -43,21 +29,35 @@ func (controller *queueManagerController) modalQueuedTaskParameters(parameters s
 		Class("btn btn-primary float-end").
 		OnClick(modalCloseScript)
 
+	groupDetails := bs.FormGroup().
+		Child(
+			hb.Div().
+				HTML("Details:").
+				Style(`font-size:18px;color:black;font-weight:bold;`),
+		).
+		Child(
+			hb.TextArea().
+				Class("form-control").
+				Style(`height:400px;`).
+				Name("details").
+				HTML(details),
+		)
+
 	modal := bs.Modal().
 		ID("ModalMessage").
-		Class("fade show modal-lg").
+		Class("modal-lg fade show").
 		Style(`display:block;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1051;`).
 		Children([]hb.TagInterface{
 			bs.ModalDialog().Children([]hb.TagInterface{
 				bs.ModalContent().Children([]hb.TagInterface{
 					bs.ModalHeader().Children([]hb.TagInterface{
 						title,
-						butonModalClose,
+						buttonModalClose,
 					}),
 
 					bs.ModalBody().
 						Child(
-							groupParameters,
+							groupDetails,
 						),
 
 					bs.ModalFooter().

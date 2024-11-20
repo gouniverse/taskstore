@@ -10,6 +10,7 @@ import (
 	"github.com/gouniverse/cmsstore"
 	"github.com/gouniverse/form"
 	"github.com/gouniverse/hb"
+	"github.com/gouniverse/maputils"
 	"github.com/gouniverse/sb"
 	"github.com/gouniverse/taskstore"
 	"github.com/gouniverse/utils"
@@ -45,15 +46,15 @@ func (c *queueManagerController) ToTag(w http.ResponseWriter, r *http.Request) h
 	}
 
 	if data.action == actionModalQueuedTaskDeleteShow {
-		return c.onModalQueuedTaskDeleteShow(r)
+		return c.onModalTaskDeleteShow(r)
 	}
 
 	if data.action == actionModalQueuedTaskDeleteSubmitted {
-		return c.onModalQueuedTaskDeleteSubmitted(r)
+		return c.onModalTaskDeleteSubmitted(r)
 	}
 
 	if data.action == actionModalQueuedTaskEnqueueShow {
-		return c.taskEnqueueModalShow(r)
+		return c.onModalTaskEnqueueShow(r)
 	}
 
 	if data.action == actionModalQueuedTaskEnqueueSubmitted {
@@ -61,7 +62,7 @@ func (c *queueManagerController) ToTag(w http.ResponseWriter, r *http.Request) h
 	}
 
 	if data.action == actionModalQueuedTaskDetailsShow {
-		return c.onModalQueuedTaskDetailsShow(data.queueID)
+		return c.onModalTaskDetailsShow(data.queueID)
 	}
 
 	if data.action == actionModalQueuedTaskFilterShow {
@@ -69,21 +70,214 @@ func (c *queueManagerController) ToTag(w http.ResponseWriter, r *http.Request) h
 	}
 
 	if data.action == actionModalQueuedTaskParametersShow {
-		return c.onModalQueuedTaskParametersShow(data.queueID)
+		return c.onModalTaskParametersShow(data.queueID)
 	}
 
 	if data.action == actionModalQueuedTaskRequeueShow {
-		return c.onModalQueuedTaskRequeueShow(r, data.queueID)
+		return c.onModalTaskRequeueShow(r, data.queueID)
 	}
 
 	if data.action == actionModalQueuedTaskRequeueSubmitted {
-		return c.onModalQueuedTaskRequeueSubmitted(r)
+		return c.onModalTaskRequeueSubmitted(r)
 	}
 
 	return hb.Wrap().
 		Child(c.page(data)).
 		Child(hb.NewScriptURL(cdn.Htmx_2_0_0())).
 		Child(hb.NewScriptURL(cdn.Sweetalert2_11()))
+}
+
+func (controller *queueManagerController) onModalTaskDeleteShow(r *http.Request) hb.TagInterface {
+	queueID := strings.TrimSpace(utils.Req(r, "queue_id", ""))
+
+	if queueID == "" {
+		return hb.Swal(hb.SwalOptions{Title: "Error", Text: "Queued task ID is required"})
+	}
+
+	queue, err := controller.store.QueueFindByID(queueID)
+
+	if err != nil {
+		controller.logger.Error("At taskadmin > onModalQueuedTaskDeleteShow", "error", err.Error())
+		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Error retrieving queued task"})
+	}
+
+	if queue == nil {
+		return hb.Swal(hb.SwalOptions{Title: "Error", Text: "Queued task not found"})
+	}
+
+	return controller.modalTaskDelete(r, queueID)
+}
+
+func (controller *queueManagerController) onModalTaskDeleteSubmitted(r *http.Request) hb.TagInterface {
+	queueID := strings.TrimSpace(utils.Req(r, "queue_id", ""))
+
+	if queueID == "" {
+		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Queued task ID is required"})
+	}
+
+	err := controller.store.QueueSoftDeleteByID(queueID)
+
+	if err != nil {
+		controller.logger.Error("At taskadmin > onModalQueuedTaskDeleteSubmitted", "error", err.Error())
+		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Queued task failed to be deleted"})
+	}
+
+	return hb.Wrap().
+		Child(hb.Swal(hb.SwalOptions{Icon: "success", Title: "Success", Text: "Queued task successfully deleted"})).
+		Child(hb.Script(`setTimeout(function(){window.location.href = window.location.href}, 3000);`))
+}
+
+func (c *queueManagerController) onModalTaskDetailsShow(queueID string) *hb.Tag {
+	if queueID == "" {
+		return hb.Div().Class("alert alert-danger").Text("queue id is required")
+	}
+
+	queue, err := c.store.QueueFindByID(queueID)
+
+	if err != nil {
+		c.logger.Error("At taskadmin > onModalQueuedTaskDetailsShow", "error", err.Error())
+		return hb.Div().Class("alert alert-danger").Text("Error retrieving queued task")
+	}
+
+	if queue == nil {
+		return hb.Div().Class("alert alert-danger").Text("Queue task not found")
+	}
+
+	return c.modalTaskDetails(queue.Details())
+}
+
+func (controller *queueManagerController) onModalTaskEnqueueShow(r *http.Request) hb.TagInterface {
+	return controller.modalTaskEnqueue(r)
+}
+
+func (c *queueManagerController) onModalTaskEnqueueSubmitted(r *http.Request) hb.TagInterface {
+	taskID := strings.TrimSpace(utils.Req(r, "task_id", ""))
+	taskParameters := strings.TrimSpace(utils.Req(r, "task_parameters", ""))
+
+	if taskID == "" {
+		return hb.Swal(hb.SwalOptions{Title: "Error", Text: "Task is required"})
+	}
+
+	if taskParameters == "" {
+		taskParameters = "{}"
+	}
+
+	if !utils.IsJSON(taskParameters) {
+		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Task Parameters is not valid JSON"})
+	}
+
+	task, err := c.store.TaskFindByID(taskID)
+
+	if err != nil {
+		c.logger.Error("At adminTasks > onModalTaskEnqueueSubmitted", "error", err.Error())
+		return hb.Swal(hb.SwalOptions{Title: "Error", Text: err.Error()})
+	}
+
+	if task == nil {
+		return hb.Swal(hb.SwalOptions{Title: "Error", Text: "Task not found"})
+	}
+
+	taskParametersAny, err := utils.FromJSON(taskParameters, map[string]interface{}{})
+
+	if err != nil {
+		c.logger.Error("At adminTasks > onModalTaskEnqueueSubmitted", "error", err.Error())
+		return hb.Swal(hb.SwalOptions{Title: "Error", Text: err.Error()})
+	}
+
+	taskParametersMap := maputils.AnyToMapStringAny(taskParametersAny)
+
+	_, err = c.store.TaskEnqueueByAlias(task.Alias(), taskParametersMap)
+
+	if err != nil {
+		c.logger.Error("At adminTasks > onModalTaskEnqueueSubmitted", "error", err.Error())
+		return hb.Swal(hb.SwalOptions{Title: "Error", Text: err.Error()})
+	}
+
+	return hb.Wrap().
+		Child(hb.Swal(hb.SwalOptions{Icon: "success", Title: "Success", Text: "Task enqueued successfully"})).
+		Child(hb.Script(`setTimeout(() => {window.location.href = window.location.href;}, 3000);`))
+}
+
+func (c *queueManagerController) onModalTaskParametersShow(queueID string) hb.TagInterface {
+	if queueID == "" {
+		return hb.Div().Class("alert alert-danger").Text("queue id is required")
+	}
+
+	queue, err := c.store.QueueFindByID(queueID)
+
+	if err != nil {
+		c.logger.Error("At taskadmin > onModalQueuedTaskParametersShow", "error", err.Error())
+		return hb.Div().Class("alert alert-danger").Text("Error retrieving queued task")
+	}
+
+	if queue == nil {
+		return hb.Div().Class("alert alert-danger").Text("Queue task not found")
+	}
+
+	return c.modalTaskParameters(queue.Parameters())
+}
+
+func (controller *queueManagerController) onModalTaskRequeueShow(r *http.Request, queueID string) hb.TagInterface {
+	queue, err := controller.store.QueueFindByID(queueID)
+
+	if err != nil {
+		controller.logger.Error("At taskadmin > onModalQueuedTaskRequeueShow", "error", err.Error())
+		return hb.Div().Class("alert alert-danger").Text("Error retrieving queued task")
+	}
+
+	if queue == nil {
+		return hb.Div().Class("alert alert-danger").Text("Queued task not found")
+	}
+
+	return controller.modalTaskRequeue(r, queue)
+}
+
+func (controller *queueManagerController) onModalTaskRequeueSubmitted(r *http.Request) hb.TagInterface {
+	taskID := strings.TrimSpace(utils.Req(r, "task_id", ""))
+	taskParameters := strings.TrimSpace(utils.Req(r, "task_parameters", ""))
+
+	if taskID == "" {
+		return hb.Swal(hb.SwalOptions{Title: "Error", Text: "Task is required"})
+	}
+
+	if taskParameters == "" {
+		taskParameters = "{}"
+	}
+
+	if !utils.IsJSON(taskParameters) {
+		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Task Parameters is not valid JSON"})
+	}
+
+	task, err := controller.store.TaskFindByID(taskID)
+
+	if err != nil {
+		controller.logger.Error("At adminTasks > onModalTaskEnqueueSubmitted", "error", err.Error())
+		return hb.Swal(hb.SwalOptions{Title: "Error", Text: err.Error()})
+	}
+
+	if task == nil {
+		return hb.Swal(hb.SwalOptions{Title: "Error", Text: "Task not found"})
+	}
+
+	taskParametersAny, err := utils.FromJSON(taskParameters, map[string]interface{}{})
+
+	if err != nil {
+		controller.logger.Error("At adminTasks > onModalTaskEnqueueSubmitted", "error", err.Error())
+		return hb.Div().Class("alert alert-danger").Text("Task failed to be enqueued")
+	}
+
+	taskParametersMap := maputils.AnyToMapStringAny(taskParametersAny)
+
+	_, err = controller.store.TaskEnqueueByAlias(task.Alias(), taskParametersMap)
+	if err != nil {
+		controller.logger.Error("At adminTasks > onModalTaskEnqueueSubmitted", "error", err.Error())
+		return hb.Div().Class("alert alert-danger").Text("Task failed to be enqueued")
+	}
+
+	return hb.Wrap().
+		Child(hb.Swal(hb.SwalOptions{Icon: "success", Title: "Success", Text: "Task enqueued successfully"})).
+		Child(hb.Script(`setTimeout(() => {window.location.href = window.location.href;}, 3000);`))
+
 }
 
 func (*queueManagerController) onModalRecordFilterShow(data queueManagerControllerData) *hb.Tag {

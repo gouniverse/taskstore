@@ -1,24 +1,35 @@
 package admin
 
 import (
-	"net/http"
-
 	"github.com/gouniverse/bs"
 	"github.com/gouniverse/hb"
-	"github.com/gouniverse/taskstore"
 )
 
-func (controller *queueManagerController) modalQueuedTaskRequeue(r *http.Request, queuedTask taskstore.QueueInterface) *hb.Tag {
+func (controller *queueManagerController) modalTaskParameters(parameters string) hb.TagInterface {
 	modalCloseScript := `document.getElementById('ModalMessage').remove();document.getElementById('ModalBackdrop').remove();`
 
 	title := hb.Heading5().
-		Text("Queued Task Requeue").
+		Text("Queued Task Parameters").
 		Style(`margin:0px;padding:0px;`)
 
-	buttonModalClose := hb.Button().Type("button").
+	butonModalClose := hb.Button().Type("button").
 		Class("btn-close").
 		Data("bs-dismiss", "modal").
 		OnClick(modalCloseScript)
+
+	groupParameters := bs.FormGroup().
+		Child(
+			hb.Div().
+				HTML("Parameters:").
+				Style(`font-size:18px;color:black;font-weight:bold;`),
+		).
+		Child(
+			hb.TextArea().
+				Class("form-control").
+				Style(`height:300px;`).
+				Name("parameters").
+				HTML(parameters),
+		)
 
 	buttonCancel := hb.Button().
 		Child(hb.I().Class("bi bi-chevron-left me-2")).
@@ -26,40 +37,11 @@ func (controller *queueManagerController) modalQueuedTaskRequeue(r *http.Request
 		Class("btn btn-secondary float-start").
 		OnClick(modalCloseScript)
 
-	buttonRequeue := hb.Button().
-		Child(hb.I().Class("bi bi-arrow-clockwise me-2")).
-		HTML("Requeue").
+	buttonOk := hb.Button().
+		Child(hb.I().Class("bi bi-check me-2")).
+		HTML("Ok").
 		Class("btn btn-primary float-end").
-		HxPost(url(r, pathQueueManager, map[string]string{
-			"action":  actionModalQueuedTaskRequeueSubmitted,
-			"task_id": queuedTask.TaskID(),
-		})).
-		HxInclude("#ModalMessage").
-		HxTarget("body").
-		HxSwap("beforeend")
-
-	divInfo := hb.Div().
-		Class("alert alert-info").
-		Text(`A new task will be created with the following parameters. You may  edit the parameters if necessary`)
-
-	groupParameters := bs.FormGroup().
-		Child(
-			hb.Div().
-				HTML("Requeue Parameters:").
-				Style(`font-size:18px;color:black;font-weight:bold;`),
-		).
-		Child(
-			hb.TextArea().
-				Class("form-control").
-				Style(`height:300px;`).
-				Name("task_parameters").
-				HTML(queuedTask.Parameters()),
-		).
-		Child(
-			hb.Div().
-				Class("form-text text-muted mb-3").
-				Text(`Must be valid JSON.`),
-		)
+		OnClick(modalCloseScript)
 
 	modal := bs.Modal().
 		ID("ModalMessage").
@@ -70,11 +52,10 @@ func (controller *queueManagerController) modalQueuedTaskRequeue(r *http.Request
 				bs.ModalContent().Children([]hb.TagInterface{
 					bs.ModalHeader().Children([]hb.TagInterface{
 						title,
-						buttonModalClose,
+						butonModalClose,
 					}),
 
 					bs.ModalBody().
-						Child(divInfo).
 						Child(
 							groupParameters,
 						),
@@ -82,7 +63,7 @@ func (controller *queueManagerController) modalQueuedTaskRequeue(r *http.Request
 					bs.ModalFooter().
 						Style(`display:flex;justify-content:space-between;`).
 						Child(buttonCancel).
-						Child(buttonRequeue),
+						Child(buttonOk),
 				}),
 			}),
 		})

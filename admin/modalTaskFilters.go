@@ -10,7 +10,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (controller *queueManagerController) modalQueuedTaskFilters(data queueManagerControllerData) *hb.Tag {
+func (controller *queueManagerController) modalTaskFilters(data queueManagerControllerData) *hb.Tag {
 	modalCloseScript := `document.getElementById('ModalMessage').remove();document.getElementById('ModalBackdrop').remove();`
 
 	title := hb.Heading5().

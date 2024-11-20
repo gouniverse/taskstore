@@ -1,15 +1,18 @@
 package admin
 
 import (
+	"net/http"
+
 	"github.com/gouniverse/bs"
 	"github.com/gouniverse/hb"
+	"github.com/gouniverse/taskstore"
 )
 
-func (controller *queueManagerController) modalQueuedTaskDetails(details string) *hb.Tag {
+func (controller *queueManagerController) modalTaskRequeue(r *http.Request, queuedTask taskstore.QueueInterface) *hb.Tag {
 	modalCloseScript := `document.getElementById('ModalMessage').remove();document.getElementById('ModalBackdrop').remove();`
 
 	title := hb.Heading5().
-		Text("Queued Task Details").
+		Text("Queued Task Requeue").
 		Style(`margin:0px;padding:0px;`)
 
 	buttonModalClose := hb.Button().Type("button").
@@ -23,29 +26,44 @@ func (controller *queueManagerController) modalQueuedTaskDetails(details string)
 		Class("btn btn-secondary float-start").
 		OnClick(modalCloseScript)
 
-	buttonOk := hb.Button().
-		Child(hb.I().Class("bi bi-check me-2")).
-		HTML("Ok").
+	buttonRequeue := hb.Button().
+		Child(hb.I().Class("bi bi-arrow-clockwise me-2")).
+		HTML("Requeue").
 		Class("btn btn-primary float-end").
-		OnClick(modalCloseScript)
+		HxPost(url(r, pathQueueManager, map[string]string{
+			"action":  actionModalQueuedTaskRequeueSubmitted,
+			"task_id": queuedTask.TaskID(),
+		})).
+		HxInclude("#ModalMessage").
+		HxTarget("body").
+		HxSwap("beforeend")
 
-	groupDetails := bs.FormGroup().
+	divInfo := hb.Div().
+		Class("alert alert-info").
+		Text(`A new task will be created with the following parameters. You may  edit the parameters if necessary`)
+
+	groupParameters := bs.FormGroup().
 		Child(
 			hb.Div().
-				HTML("Details:").
+				HTML("Requeue Parameters:").
 				Style(`font-size:18px;color:black;font-weight:bold;`),
 		).
 		Child(
 			hb.TextArea().
 				Class("form-control").
-				Style(`height:400px;`).
-				Name("details").
-				HTML(details),
+				Style(`height:300px;`).
+				Name("task_parameters").
+				HTML(queuedTask.Parameters()),
+		).
+		Child(
+			hb.Div().
+				Class("form-text text-muted mb-3").
+				Text(`Must be valid JSON.`),
 		)
 
 	modal := bs.Modal().
 		ID("ModalMessage").
-		Class("modal-lg fade show").
+		Class("fade show modal-lg").
 		Style(`display:block;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1051;`).
 		Children([]hb.TagInterface{
 			bs.ModalDialog().Children([]hb.TagInterface{
@@ -56,14 +74,15 @@ func (controller *queueManagerController) modalQueuedTaskDetails(details string)
 					}),
 
 					bs.ModalBody().
+						Child(divInfo).
 						Child(
-							groupDetails,
+							groupParameters,
 						),
 
 					bs.ModalFooter().
 						Style(`display:flex;justify-content:space-between;`).
 						Child(buttonCancel).
-						Child(buttonOk),
+						Child(buttonRequeue),
 				}),
 			}),
 		})

@@ -7,7 +7,7 @@ import (
 	"github.com/gouniverse/hb"
 )
 
-func (controller *queueManagerController) modalQueuedTaskDelete(r *http.Request, queueID string) *hb.Tag {
+func (controller *queueManagerController) modalTaskDelete(r *http.Request, queueID string) *hb.Tag {
 	if queueID == "" {
 		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "queue id is required"})
 	}

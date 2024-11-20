@@ -45,11 +45,11 @@ func (c *queueManagerController) ToTag(w http.ResponseWriter, r *http.Request) h
 	}
 
 	if data.action == actionModalQueuedTaskDeleteShow {
-		// return controller.onModalQueuedTaskDeleteShow(r)
+		return c.onModalQueuedTaskDeleteShow(r)
 	}
 
 	if data.action == actionModalQueuedTaskDeleteSubmitted {
-		// return controller.onModalQueuedTaskDeleteSubmitted(r)
+		return c.onModalQueuedTaskDeleteSubmitted(r)
 	}
 
 	if data.action == actionModalQueuedTaskEnqueueShow {
@@ -65,7 +65,7 @@ func (c *queueManagerController) ToTag(w http.ResponseWriter, r *http.Request) h
 	}
 
 	if data.action == actionModalQueuedTaskFilterShow {
-		// return controller.onModalQueuedTaskFilterShow(data)
+		// return c.onModalQueuedTaskFilterShow(data)
 	}
 
 	if data.action == actionModalQueuedTaskParametersShow {
@@ -73,11 +73,11 @@ func (c *queueManagerController) ToTag(w http.ResponseWriter, r *http.Request) h
 	}
 
 	if data.action == actionModalQueuedTaskRequeueShow {
-		// return controller.onModalQueuedTaskRequeueShow(data.queueID)
+		return c.onModalQueuedTaskRequeueShow(r, data.queueID)
 	}
 
 	if data.action == actionModalQueuedTaskRequeueSubmitted {
-		// return controller.onModalQueuedTaskRequeueSubmitted(r)
+		return c.onModalQueuedTaskRequeueSubmitted(r)
 	}
 
 	return hb.Wrap().
@@ -216,6 +216,7 @@ func (*queueManagerController) onModalRecordFilterShow(data queueManagerControll
 }
 
 func (controller *queueManagerController) page(data queueManagerControllerData) hb.TagInterface {
+	adminHeader := adminHeader(controller.store, &controller.logger, data.request)
 	breadcrumbs := breadcrumbs(data.request, []Breadcrumb{
 		{
 			Name: "Queue Manager",
@@ -242,6 +243,8 @@ func (controller *queueManagerController) page(data queueManagerControllerData) 
 
 	return hb.Div().
 		Class("container").
+		Child(adminHeader).
+		Child(hb.HR()).
 		Child(breadcrumbs).
 		Child(hb.HR()).
 		Child(title).

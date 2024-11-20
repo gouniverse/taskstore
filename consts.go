@@ -1,5 +1,16 @@
 package taskstore
 
+const QueueStatusCanceled = "canceled"
+const QueueStatusDeleted = "deleted"
+const QueueStatusFailed = "failed"
+const QueueStatusPaused = "paused"
+const QueueStatusQueued = "queued"
+const QueueStatusRunning = "running"
+const QueueStatusSuccess = "success"
+
+const TaskStatusActive = "active"
+const TaskStatusCanceled = "canceled"
+
 const COLUMN_ALIAS = "alias"
 const COLUMN_ATTEMPTS = "attempts"
 const COLUMN_COMPLETED_AT = "completed_at"
@@ -8,6 +19,7 @@ const COLUMN_DELETED_AT = "deleted_at"
 const COLUMN_DETAILS = "details"
 const COLUMN_ID = "id"
 const COLUMN_DESCRIPTION = "description"
+const COLUMN_METAS = "metas"
 const COLUMN_MEMO = "memo"
 const COLUMN_PARAMETERS = "parameters"
 const COLUMN_OUTPUT = "output"

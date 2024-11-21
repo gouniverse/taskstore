@@ -71,7 +71,35 @@ func (a *admin) handler() hb.TagInterface {
 	controller := utils.Req(a.request, "controller", "")
 
 	if controller == "" {
-		controller = pathQueueManager
+		controller = pathHome
+	}
+
+	if controller == pathQueueCreate {
+		return queueCreate(a.logger, a.store).ToTag(a.response, a.request)
+	}
+
+	if controller == pathQueueDelete {
+		return queueDelete(a.logger, a.store).ToTag(a.response, a.request)
+	}
+
+	if controller == pathQueueDetails {
+		return queueDetails(a.logger, a.store).ToTag(a.response, a.request)
+	}
+
+	if controller == pathQueueManager {
+		return queueManager(a.logger, a.store, a.layout).ToTag(a.response, a.request)
+	}
+
+	if controller == pathQueueParameters {
+		return queueParameters(a.logger, a.store).ToTag(a.response, a.request)
+	}
+
+	if controller == pathQueueRequeue {
+		return queueRequeue(a.logger, a.store).ToTag(a.response, a.request)
+	}
+
+	if controller == pathQueueTaskRestart {
+		return queueTaskRestart(a.logger, a.store).ToTag(a.response, a.request)
 	}
 
 	if controller == pathTaskCreate {
@@ -91,20 +119,6 @@ func (a *admin) handler() hb.TagInterface {
 	}
 
 	if controller == pathQueueCreate {
-		// 	return queueCreateUi(a.logger, a.store).ToTag(a.response, a.request)
-		return hb.Div().Child(hb.H1().HTML(controller))
-	}
-
-	if controller == pathQueueDelete {
-		return queueDelete(a.logger, a.store).ToTag(a.response, a.request)
-	}
-
-	if controller == pathQueueManager {
-		return queueManager(a.logger, a.store, a.layout).ToTag(a.response, a.request)
-	}
-
-	if controller == pathQueueUpdate {
-		// 	return queueUpdateUi(a.logger, a.store).ToTag(a.response, a.request)
 		return hb.Div().Child(hb.H1().HTML(controller))
 	}
 

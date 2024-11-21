@@ -47,14 +47,14 @@ func adminHeader(store taskstore.StoreInterface, logger *slog.Logger, r *http.Re
 		Class("nav-item").
 		Child(linkQueue.
 			Child(hb.Span().
-				Class("badge bg-secondary").
+				Class("badge bg-secondary ms-2").
 				HTML(cast.ToString(queueCount)))))
 
 	ulNav.Child(hb.LI().
 		Class("nav-item").
 		Child(linkTasks.
 			Child(hb.Span().
-				Class("badge bg-secondary").
+				Class("badge bg-secondary ms-2").
 				HTML(cast.ToString(taskCount)))))
 
 	divCard := hb.NewDiv().Class("card card-default mt-3 mb-3")
@@ -134,7 +134,9 @@ type Breadcrumb struct {
 
 func breadcrumbsUI(breadcrumbs []Breadcrumb) hb.TagInterface {
 
-	ol := hb.OL().Attr("class", "breadcrumb")
+	ol := hb.OL().
+		Class("breadcrumb").
+		Style("margin-bottom: 0px;")
 
 	for _, breadcrumb := range breadcrumbs {
 

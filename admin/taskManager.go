@@ -35,7 +35,7 @@ type taskManagerController struct {
 func (c *taskManagerController) ToTag(w http.ResponseWriter, r *http.Request) hb.TagInterface {
 	data, errorMessage := c.prepareData(r)
 
-	c.layout.SetTitle("Task Manager | Zepelin")
+	c.layout.SetTitle("Task Manager | Zeppelin")
 
 	if errorMessage != "" {
 		c.layout.SetBody(hb.Div().
@@ -45,23 +45,21 @@ func (c *taskManagerController) ToTag(w http.ResponseWriter, r *http.Request) hb
 		return hb.Raw(c.layout.Render(w, r))
 	}
 
-	htmxScript := `setTimeout(() => async function() {
+	htmxScript := `setTimeout(() => {
 		if (!window.htmx) {
 			let script = document.createElement('script');
 			document.head.appendChild(script);
 			script.type = 'text/javascript';
 			script.src = '` + cdn.Htmx_2_0_0() + `';
-			await script.onload
 		}
 	}, 1000);`
 
-	swalScript := `setTimeout(() => async function() {
+	swalScript := `setTimeout(() => {
 		if (!window.Swal) {
 			let script = document.createElement('script');
 			document.head.appendChild(script);
 			script.type = 'text/javascript';
 			script.src = '` + cdn.Sweetalert2_11() + `';
-			await script.onload
 		}
 	}, 1000);`
 

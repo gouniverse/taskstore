@@ -10,7 +10,6 @@ import (
 	"github.com/gouniverse/cmsstore"
 	"github.com/gouniverse/form"
 	"github.com/gouniverse/hb"
-	"github.com/gouniverse/maputils"
 	"github.com/gouniverse/sb"
 	"github.com/gouniverse/taskstore"
 	"github.com/gouniverse/utils"
@@ -37,7 +36,7 @@ type queueManagerController struct {
 func (c *queueManagerController) ToTag(w http.ResponseWriter, r *http.Request) hb.TagInterface {
 	data, errorMessage := c.prepareData(r)
 
-	c.layout.SetTitle("Queue Manager | Zepelin")
+	c.layout.SetTitle("Queue Manager | Zeppelin")
 
 	if errorMessage != "" {
 		c.layout.SetBody(hb.Div().
@@ -51,59 +50,25 @@ func (c *queueManagerController) ToTag(w http.ResponseWriter, r *http.Request) h
 		return c.onModalRecordFilterShow(data)
 	}
 
-	// if data.action == actionModalQueuedTaskDeleteShow {
-	// 	return c.onModalTaskDeleteShow(r)
-	// }
-
-	// if data.action == actionModalQueuedTaskDeleteSubmitted {
-	// 	return c.onModalTaskDeleteSubmitted(r)
-	// }
-
-	if data.action == actionModalQueuedTaskEnqueueShow {
-		return c.onModalTaskEnqueueShow(r)
-	}
-
-	if data.action == actionModalQueuedTaskEnqueueSubmitted {
-		return c.onModalTaskEnqueueSubmitted(r)
-	}
-
-	if data.action == actionModalQueuedTaskDetailsShow {
-		return c.onModalTaskDetailsShow(data.queueID)
-	}
-
 	if data.action == actionModalQueuedTaskFilterShow {
 		// return c.onModalQueuedTaskFilterShow(data)
 	}
 
-	if data.action == actionModalQueuedTaskParametersShow {
-		return c.onModalTaskParametersShow(data.queueID)
-	}
-
-	if data.action == actionModalQueuedTaskRequeueShow {
-		return c.onModalTaskRequeueShow(r, data.queueID)
-	}
-
-	if data.action == actionModalQueuedTaskRequeueSubmitted {
-		return c.onModalTaskRequeueSubmitted(r)
-	}
-
-	htmxScript := `setTimeout(() => async function() {
+	htmxScript := `setTimeout(() => {
 		if (!window.htmx) {
 			let script = document.createElement('script');
 			document.head.appendChild(script);
 			script.type = 'text/javascript';
 			script.src = '` + cdn.Htmx_2_0_0() + `';
-			await script.onload
 		}
 	}, 1000);`
 
-	swalScript := `setTimeout(() => async function() {
+	swalScript := `setTimeout(() => {
 		if (!window.Swal) {
 			let script = document.createElement('script');
 			document.head.appendChild(script);
 			script.type = 'text/javascript';
 			script.src = '` + cdn.Sweetalert2_11() + `';
-			await script.onload
 		}
 	}, 1000);`
 
@@ -111,159 +76,6 @@ func (c *queueManagerController) ToTag(w http.ResponseWriter, r *http.Request) h
 	c.layout.SetScripts([]string{htmxScript, swalScript})
 
 	return hb.Raw(c.layout.Render(w, r))
-}
-
-func (c *queueManagerController) onModalTaskDetailsShow(queueID string) *hb.Tag {
-	if queueID == "" {
-		return hb.Div().Class("alert alert-danger").Text("queue id is required")
-	}
-
-	queue, err := c.store.QueueFindByID(queueID)
-
-	if err != nil {
-		c.logger.Error("At taskadmin > onModalQueuedTaskDetailsShow", "error", err.Error())
-		return hb.Div().Class("alert alert-danger").Text("Error retrieving queued task")
-	}
-
-	if queue == nil {
-		return hb.Div().Class("alert alert-danger").Text("Queue task not found")
-	}
-
-	return c.modalTaskDetails(queue.Details())
-}
-
-func (controller *queueManagerController) onModalTaskEnqueueShow(r *http.Request) hb.TagInterface {
-	return controller.modalTaskEnqueue(r)
-}
-
-func (c *queueManagerController) onModalTaskEnqueueSubmitted(r *http.Request) hb.TagInterface {
-	taskID := strings.TrimSpace(utils.Req(r, "task_id", ""))
-	taskParameters := strings.TrimSpace(utils.Req(r, "task_parameters", ""))
-
-	if taskID == "" {
-		return hb.Swal(hb.SwalOptions{Title: "Error", Text: "Task is required"})
-	}
-
-	if taskParameters == "" {
-		taskParameters = "{}"
-	}
-
-	if !utils.IsJSON(taskParameters) {
-		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Task Parameters is not valid JSON"})
-	}
-
-	task, err := c.store.TaskFindByID(taskID)
-
-	if err != nil {
-		c.logger.Error("At adminTasks > onModalTaskEnqueueSubmitted", "error", err.Error())
-		return hb.Swal(hb.SwalOptions{Title: "Error", Text: err.Error()})
-	}
-
-	if task == nil {
-		return hb.Swal(hb.SwalOptions{Title: "Error", Text: "Task not found"})
-	}
-
-	taskParametersAny, err := utils.FromJSON(taskParameters, map[string]interface{}{})
-
-	if err != nil {
-		c.logger.Error("At adminTasks > onModalTaskEnqueueSubmitted", "error", err.Error())
-		return hb.Swal(hb.SwalOptions{Title: "Error", Text: err.Error()})
-	}
-
-	taskParametersMap := maputils.AnyToMapStringAny(taskParametersAny)
-
-	_, err = c.store.TaskEnqueueByAlias(task.Alias(), taskParametersMap)
-
-	if err != nil {
-		c.logger.Error("At adminTasks > onModalTaskEnqueueSubmitted", "error", err.Error())
-		return hb.Swal(hb.SwalOptions{Title: "Error", Text: err.Error()})
-	}
-
-	return hb.Wrap().
-		Child(hb.Swal(hb.SwalOptions{Icon: "success", Title: "Success", Text: "Task enqueued successfully"})).
-		Child(hb.Script(`setTimeout(() => {window.location.href = window.location.href;}, 3000);`))
-}
-
-func (c *queueManagerController) onModalTaskParametersShow(queueID string) hb.TagInterface {
-	if queueID == "" {
-		return hb.Div().Class("alert alert-danger").Text("queue id is required")
-	}
-
-	queue, err := c.store.QueueFindByID(queueID)
-
-	if err != nil {
-		c.logger.Error("At taskadmin > onModalQueuedTaskParametersShow", "error", err.Error())
-		return hb.Div().Class("alert alert-danger").Text("Error retrieving queued task")
-	}
-
-	if queue == nil {
-		return hb.Div().Class("alert alert-danger").Text("Queue task not found")
-	}
-
-	return c.modalTaskParameters(queue.Parameters())
-}
-
-func (controller *queueManagerController) onModalTaskRequeueShow(r *http.Request, queueID string) hb.TagInterface {
-	queue, err := controller.store.QueueFindByID(queueID)
-
-	if err != nil {
-		controller.logger.Error("At taskadmin > onModalQueuedTaskRequeueShow", "error", err.Error())
-		return hb.Div().Class("alert alert-danger").Text("Error retrieving queued task")
-	}
-
-	if queue == nil {
-		return hb.Div().Class("alert alert-danger").Text("Queued task not found")
-	}
-
-	return controller.modalTaskRequeue(r, queue)
-}
-
-func (controller *queueManagerController) onModalTaskRequeueSubmitted(r *http.Request) hb.TagInterface {
-	taskID := strings.TrimSpace(utils.Req(r, "task_id", ""))
-	taskParameters := strings.TrimSpace(utils.Req(r, "task_parameters", ""))
-
-	if taskID == "" {
-		return hb.Swal(hb.SwalOptions{Title: "Error", Text: "Task is required"})
-	}
-
-	if taskParameters == "" {
-		taskParameters = "{}"
-	}
-
-	if !utils.IsJSON(taskParameters) {
-		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Task Parameters is not valid JSON"})
-	}
-
-	task, err := controller.store.TaskFindByID(taskID)
-
-	if err != nil {
-		controller.logger.Error("At adminTasks > onModalTaskEnqueueSubmitted", "error", err.Error())
-		return hb.Swal(hb.SwalOptions{Title: "Error", Text: err.Error()})
-	}
-
-	if task == nil {
-		return hb.Swal(hb.SwalOptions{Title: "Error", Text: "Task not found"})
-	}
-
-	taskParametersAny, err := utils.FromJSON(taskParameters, map[string]interface{}{})
-
-	if err != nil {
-		controller.logger.Error("At adminTasks > onModalTaskEnqueueSubmitted", "error", err.Error())
-		return hb.Div().Class("alert alert-danger").Text("Task failed to be enqueued")
-	}
-
-	taskParametersMap := maputils.AnyToMapStringAny(taskParametersAny)
-
-	_, err = controller.store.TaskEnqueueByAlias(task.Alias(), taskParametersMap)
-	if err != nil {
-		controller.logger.Error("At adminTasks > onModalTaskEnqueueSubmitted", "error", err.Error())
-		return hb.Div().Class("alert alert-danger").Text("Task failed to be enqueued")
-	}
-
-	return hb.Wrap().
-		Child(hb.Swal(hb.SwalOptions{Icon: "success", Title: "Success", Text: "Task enqueued successfully"})).
-		Child(hb.Script(`setTimeout(() => {window.location.href = window.location.href;}, 3000);`))
-
 }
 
 func (*queueManagerController) onModalRecordFilterShow(data queueManagerControllerData) *hb.Tag {
@@ -404,22 +216,17 @@ func (controller *queueManagerController) page(data queueManagerControllerData) 
 		},
 	})
 
-	buttonQueueNew := hb.Button().
+	buttonQueueCreate := hb.Button().
 		Class("btn btn-primary float-end").
 		Child(hb.I().Class("bi bi-plus-circle").Style("margin-top:-4px;margin-right:8px;font-size:16px;")).
-		HTML("Enqueue Task").
-		HxGet(url(data.request, pathQueueManager, map[string]string{
-			"action": actionModalQueuedTaskEnqueueShow,
-			"page":   data.page,
-			"by":     data.sortBy,
-			"sort":   data.sortOrder,
-		})).
+		HTML("New Task to Queue").
+		HxGet(url(data.request, pathQueueCreate, map[string]string{})).
 		HxTarget("body").
 		HxSwap("beforeend")
 
 	title := hb.Heading1().
 		HTML("Zeppelin. Queue Manager").
-		Child(buttonQueueNew)
+		Child(buttonQueueCreate)
 
 	return hb.Div().
 		Class("container").
@@ -487,12 +294,8 @@ func (controller *queueManagerController) tableRecords(data queueManagerControll
 					Style("margin-bottom: 2px; margin-left:2px; margin-right:2px;").
 					Child(hb.I().Class("bi bi-list-stars")).
 					Title("See queued task parameters").
-					HxPost(url(data.request, pathQueueManager, map[string]string{
-						"action":   actionModalQueuedTaskParametersShow,
+					HxGet(url(data.request, pathQueueParameters, map[string]string{
 						"queue_id": queuedTask.ID(),
-						"page":     data.page,
-						"by":       data.sortBy,
-						"sort":     data.sortOrder,
 					})).
 					HxTarget("body").
 					HxSwap("beforeend")
@@ -502,27 +305,19 @@ func (controller *queueManagerController) tableRecords(data queueManagerControll
 					Style("margin-bottom: 2px; margin-left:2px; margin-right:2px;").
 					Child(hb.I().Class("bi bi-info-circle-fill")).
 					Title("See the details of the job run").
-					HxPost(url(data.request, pathQueueManager, map[string]string{
-						"action":   actionModalQueuedTaskDetailsShow,
+					HxGet(url(data.request, pathQueueDetails, map[string]string{
 						"queue_id": queuedTask.ID(),
-						"page":     data.page,
-						"by":       data.sortBy,
-						"sort":     data.sortOrder,
 					})).
 					HxTarget("body").
 					HxSwap("beforeend")
 
-				buttonRequeue := hb.Button().
+				buttonAddToQueue := hb.Button().
 					Class("btn btn-sm btn-info").
 					Style("margin-bottom: 2px; margin-left:2px; margin-right:2px;").
-					Child(hb.I().Class("bi bi-arrow-repeat")).
-					Title("Re-add task to queue as new job").
-					HxPost(url(data.request, pathQueueManager, map[string]string{
-						"action":   actionModalQueuedTaskRequeueShow,
+					Child(hb.I().Class("bi bi-database-add")).
+					Title("Add as new task to the queue").
+					HxGet(url(data.request, pathQueueRequeue, map[string]string{
 						"queue_id": queuedTask.ID(),
-						"page":     data.page,
-						"by":       data.sortBy,
-						"sort":     data.sortOrder,
 					})).
 					HxTarget("body").
 					HxSwap("beforeend")
@@ -532,12 +327,8 @@ func (controller *queueManagerController) tableRecords(data queueManagerControll
 					Style("margin-bottom: 2px; margin-left:2px; margin-right:2px;").
 					Child(hb.I().Class("bi bi-arrow-clockwise")).
 					Title("Restart this job").
-					HxPost(url(data.request, pathQueueManager, map[string]string{
-						"action":   actionModalQueuedTaskRestartShow,
+					HxGet(url(data.request, pathQueueTaskRestart, map[string]string{
 						"queue_id": queuedTask.ID(),
-						"page":     data.page,
-						"by":       data.sortBy,
-						"sort":     data.sortOrder,
 					})).
 					HxTarget("body").
 					HxSwap("beforeend")
@@ -600,7 +391,7 @@ func (controller *queueManagerController) tableRecords(data queueManagerControll
 						Style("text-align: center;").
 						Child(buttonParameters).
 						Child(buttonDetails).
-						Child(buttonRequeue).
+						Child(buttonAddToQueue).
 						Child(buttonRestart).
 						Child(buttonDelete),
 				})

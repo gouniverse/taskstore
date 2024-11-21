@@ -15,7 +15,7 @@ import (
 func adminHeader(store taskstore.StoreInterface, logger *slog.Logger, r *http.Request) hb.TagInterface {
 	linkHome := hb.NewHyperlink().
 		HTML("Dashboard").
-		Href(url(r, pathQueueManager, nil)).
+		Href(url(r, pathHome, nil)).
 		Class("nav-link")
 	linkQueue := hb.Hyperlink().
 		HTML("Queue").
@@ -76,8 +76,8 @@ func breadcrumbs(r *http.Request, pageBreadcrumbs []Breadcrumb) hb.TagInterface 
 	breadcrumbItems := []Breadcrumb{
 		adminHomeBreadcrumb,
 		{
-			Name: "Uptime",
-			URL:  url(r, "", nil),
+			Name: "Zeppelin",
+			URL:  url(r, pathHome, nil),
 		},
 	}
 

@@ -18,71 +18,57 @@ import (
 
 const actionModalTaskFilterShow = "modal_task_filter_show"
 
-func taskManager(logger slog.Logger, store taskstore.StoreInterface) *taskManagerController {
+func taskManager(logger slog.Logger, store taskstore.StoreInterface, layout Layout) *taskManagerController {
 	return &taskManagerController{
 		logger: logger,
 		store:  store,
+		layout: layout,
 	}
 }
 
 type taskManagerController struct {
 	logger slog.Logger
 	store  taskstore.StoreInterface
+	layout Layout
 }
 
 func (c *taskManagerController) ToTag(w http.ResponseWriter, r *http.Request) hb.TagInterface {
 	data, errorMessage := c.prepareData(r)
 
+	c.layout.SetTitle("Task Manager | Zepelin")
+
 	if errorMessage != "" {
-		return hb.Div().
+		c.layout.SetBody(hb.Div().
 			Class("alert alert-danger").
-			Text(errorMessage)
+			Text(errorMessage).ToHTML())
+
+		return hb.Raw(c.layout.Render(w, r))
 	}
 
-	// if data.action == actionModalTaskFilterShow {
-	// 	return c.onModalRecordFilterShow(data)
-	// }
+	htmxScript := `setTimeout(() => async function() {
+		if (!window.htmx) {
+			let script = document.createElement('script');
+			document.head.appendChild(script);
+			script.type = 'text/javascript';
+			script.src = '` + cdn.Htmx_2_0_0() + `';
+			await script.onload
+		}
+	}, 1000);`
 
-	// if data.action == actionModalTasksTaskDeleteShow {
-	// 	return c.onModalTaskDeleteShow(r)
-	// }
+	swalScript := `setTimeout(() => async function() {
+		if (!window.Swal) {
+			let script = document.createElement('script');
+			document.head.appendChild(script);
+			script.type = 'text/javascript';
+			script.src = '` + cdn.Sweetalert2_11() + `';
+			await script.onload
+		}
+	}, 1000);`
 
-	// if data.action == actionModalTasksTaskDeleteSubmitted {
-	// 	return c.onModalTaskDeleteSubmitted(r)
-	// }
+	c.layout.SetBody(c.page(data).ToHTML())
+	c.layout.SetScripts([]string{htmxScript, swalScript})
 
-	// if data.action == actionModalTasksTaskEntaskShow {
-	// 	return c.onModalTaskEntaskShow(r)
-	// }
-
-	// if data.action == actionModalTasksTaskEntaskSubmitted {
-	// 	return c.onModalTaskEntaskSubmitted(r)
-	// }
-
-	// if data.action == actionModalTasksTaskDetailsShow {
-	// 	return c.onModalTaskDetailsShow(data.taskID)
-	// }
-
-	// if data.action == actionModalTasksTaskFilterShow {
-	// 	// return c.onModalTasksTaskFilterShow(data)
-	// }
-
-	// if data.action == actionModalTasksTaskParametersShow {
-	// 	return c.onModalTaskParametersShow(data.taskID)
-	// }
-
-	// if data.action == actionModalTasksTaskRetaskShow {
-	// 	return c.onModalTaskRetaskShow(r, data.taskID)
-	// }
-
-	// if data.action == actionModalTasksTaskRetaskSubmitted {
-	// 	return c.onModalTaskRetaskSubmitted(r)
-	// }
-
-	return hb.Wrap().
-		Child(c.page(data)).
-		Child(hb.NewScriptURL(cdn.Htmx_2_0_0())).
-		Child(hb.NewScriptURL(cdn.Sweetalert2_11()))
+	return hb.Raw(c.layout.Render(w, r))
 }
 
 func (controller *taskManagerController) page(data taskManagerControllerData) hb.TagInterface {
@@ -103,14 +89,14 @@ func (controller *taskManagerController) page(data taskManagerControllerData) hb
 		HxSwap("beforeend")
 
 	title := hb.Heading1().
-		HTML("Tasks. Task Manager").
+		HTML("Zeppelin. Task Manager").
 		Child(buttonTaskCreate)
 
 	return hb.Div().
 		Class("container").
-		Child(adminHeader).
-		Child(hb.HR()).
 		Child(breadcrumbs).
+		Child(hb.HR()).
+		Child(adminHeader).
 		Child(hb.HR()).
 		Child(title).
 		Child(controller.tableRecords(data))

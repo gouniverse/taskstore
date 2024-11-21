@@ -16,7 +16,7 @@ require (
 	github.com/gouniverse/cmsstore v0.13.1
 	github.com/gouniverse/dataobject v0.3.0
 	github.com/gouniverse/form v0.15.1
-	github.com/gouniverse/hb v1.78.1
+	github.com/gouniverse/hb v1.78.2
 	github.com/gouniverse/utils v1.45.3
 	github.com/mingrammer/cfmt v1.1.0
 	github.com/spf13/cast v1.7.0

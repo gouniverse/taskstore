@@ -70,8 +70,8 @@ github.com/gouniverse/envenc v0.8.0 h1:pt1DVRrRXdxk4eA6vm0SBCdPrgXaF1EsDUq6tgXfp
 github.com/gouniverse/envenc v0.8.0/go.mod h1:bdRPykXWVTAJfpEDht/iMqFtj/iigw2dqJci5dp/f8A=
 github.com/gouniverse/form v0.15.1 h1:9W70+RKF44fjwSbhbikYIFt/vVYevasn4P5xxbPy9RQ=
 github.com/gouniverse/form v0.15.1/go.mod h1:yWHtyriw4p/uCYnJRn9bPskjZkFUSsN4gLR0Nnx1Prs=
-github.com/gouniverse/hb v1.78.1 h1:Eliw85Lnxd89+RYMyAoqXfXDtTSGu+1O+cKWZlBoORc=
-github.com/gouniverse/hb v1.78.1/go.mod h1:WDUCGoptHp/fAYT634lQ2846sGx88yXOOWMvlEaezYM=
+github.com/gouniverse/hb v1.78.2 h1:y5BKK0lhRLDOhLfXe8lXpySRv3NBF+6It/yvoZbjCq8=
+github.com/gouniverse/hb v1.78.2/go.mod h1:WDUCGoptHp/fAYT634lQ2846sGx88yXOOWMvlEaezYM=
 github.com/gouniverse/maputils v0.7.0 h1:qoJnY8tY5gkdyuIkwGHJYwH7It7LnCevxU+P+c4nU/Y=
 github.com/gouniverse/maputils v0.7.0/go.mod h1:s8HbjSvEqBl+R+bFCvFd+mY07bx7EQM5YhIjDgF26Q0=
 github.com/gouniverse/sb v0.6.0 h1:2bfPUlQODeTZps/qlTNHGyGIUMn176JtpTjPISWSsq4=

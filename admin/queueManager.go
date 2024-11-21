@@ -20,38 +20,44 @@ import (
 
 const actionModalQueueFilterShow = "modal_queue_filter_show"
 
-func queueManagerUi(logger slog.Logger, store taskstore.StoreInterface) *queueManagerController {
+func queueManager(logger slog.Logger, store taskstore.StoreInterface, layout Layout) *queueManagerController {
 	return &queueManagerController{
 		logger: logger,
 		store:  store,
+		layout: layout,
 	}
 }
 
 type queueManagerController struct {
 	logger slog.Logger
 	store  taskstore.StoreInterface
+	layout Layout
 }
 
 func (c *queueManagerController) ToTag(w http.ResponseWriter, r *http.Request) hb.TagInterface {
 	data, errorMessage := c.prepareData(r)
 
+	c.layout.SetTitle("Queue Manager | Zepelin")
+
 	if errorMessage != "" {
-		return hb.Div().
+		c.layout.SetBody(hb.Div().
 			Class("alert alert-danger").
-			Text(errorMessage)
+			Text(errorMessage).ToHTML())
+
+		return hb.Raw(c.layout.Render(w, r))
 	}
 
 	if data.action == actionModalQueueFilterShow {
 		return c.onModalRecordFilterShow(data)
 	}
 
-	if data.action == actionModalQueuedTaskDeleteShow {
-		return c.onModalTaskDeleteShow(r)
-	}
+	// if data.action == actionModalQueuedTaskDeleteShow {
+	// 	return c.onModalTaskDeleteShow(r)
+	// }
 
-	if data.action == actionModalQueuedTaskDeleteSubmitted {
-		return c.onModalTaskDeleteSubmitted(r)
-	}
+	// if data.action == actionModalQueuedTaskDeleteSubmitted {
+	// 	return c.onModalTaskDeleteSubmitted(r)
+	// }
 
 	if data.action == actionModalQueuedTaskEnqueueShow {
 		return c.onModalTaskEnqueueShow(r)
@@ -81,50 +87,30 @@ func (c *queueManagerController) ToTag(w http.ResponseWriter, r *http.Request) h
 		return c.onModalTaskRequeueSubmitted(r)
 	}
 
-	return hb.Wrap().
-		Child(c.page(data)).
-		Child(hb.NewScriptURL(cdn.Htmx_2_0_0())).
-		Child(hb.NewScriptURL(cdn.Sweetalert2_11()))
-}
+	htmxScript := `setTimeout(() => async function() {
+		if (!window.htmx) {
+			let script = document.createElement('script');
+			document.head.appendChild(script);
+			script.type = 'text/javascript';
+			script.src = '` + cdn.Htmx_2_0_0() + `';
+			await script.onload
+		}
+	}, 1000);`
 
-func (controller *queueManagerController) onModalTaskDeleteShow(r *http.Request) hb.TagInterface {
-	queueID := strings.TrimSpace(utils.Req(r, "queue_id", ""))
+	swalScript := `setTimeout(() => async function() {
+		if (!window.Swal) {
+			let script = document.createElement('script');
+			document.head.appendChild(script);
+			script.type = 'text/javascript';
+			script.src = '` + cdn.Sweetalert2_11() + `';
+			await script.onload
+		}
+	}, 1000);`
 
-	if queueID == "" {
-		return hb.Swal(hb.SwalOptions{Title: "Error", Text: "Queued task ID is required"})
-	}
+	c.layout.SetBody(c.page(data).ToHTML())
+	c.layout.SetScripts([]string{htmxScript, swalScript})
 
-	queue, err := controller.store.QueueFindByID(queueID)
-
-	if err != nil {
-		controller.logger.Error("At taskadmin > onModalQueuedTaskDeleteShow", "error", err.Error())
-		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Error retrieving queued task"})
-	}
-
-	if queue == nil {
-		return hb.Swal(hb.SwalOptions{Title: "Error", Text: "Queued task not found"})
-	}
-
-	return controller.modalTaskDelete(r, queueID)
-}
-
-func (controller *queueManagerController) onModalTaskDeleteSubmitted(r *http.Request) hb.TagInterface {
-	queueID := strings.TrimSpace(utils.Req(r, "queue_id", ""))
-
-	if queueID == "" {
-		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Queued task ID is required"})
-	}
-
-	err := controller.store.QueueSoftDeleteByID(queueID)
-
-	if err != nil {
-		controller.logger.Error("At taskadmin > onModalQueuedTaskDeleteSubmitted", "error", err.Error())
-		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Queued task failed to be deleted"})
-	}
-
-	return hb.Wrap().
-		Child(hb.Swal(hb.SwalOptions{Icon: "success", Title: "Success", Text: "Queued task successfully deleted"})).
-		Child(hb.Script(`setTimeout(function(){window.location.href = window.location.href}, 3000);`))
+	return hb.Raw(c.layout.Render(w, r))
 }
 
 func (c *queueManagerController) onModalTaskDetailsShow(queueID string) *hb.Tag {
@@ -432,14 +418,14 @@ func (controller *queueManagerController) page(data queueManagerControllerData) 
 		HxSwap("beforeend")
 
 	title := hb.Heading1().
-		HTML("Tasks. Queue Manager").
+		HTML("Zeppelin. Queue Manager").
 		Child(buttonQueueNew)
 
 	return hb.Div().
 		Class("container").
-		Child(adminHeader).
-		Child(hb.HR()).
 		Child(breadcrumbs).
+		Child(hb.HR()).
+		Child(adminHeader).
 		Child(hb.HR()).
 		Child(title).
 		Child(controller.tableRecords(data))
@@ -490,25 +476,11 @@ func (controller *queueManagerController) tableRecords(data queueManagerControll
 					Style("margin-bottom: 2px; margin-left:2px; margin-right:2px;").
 					Child(hb.I().Class("bi bi-trash")).
 					Title("Delete task from queue").
-					HxPost(url(data.request, pathQueueManager, map[string]string{
-						"action":   actionModalQueuedTaskDeleteShow,
+					HxGet(url(data.request, pathQueueDelete, map[string]string{
 						"queue_id": queuedTask.ID(),
-						"page":     data.page,
-						"by":       data.sortBy,
-						"sort":     data.sortOrder,
 					})).
 					HxTarget("body").
 					HxSwap("beforeend")
-
-				// buttonDelete := hb.Hyperlink().
-				// 	Class("btn btn-danger").
-				// 	Child(hb.I().Class("bi bi-trash")).
-				// 	Title("Delete").
-				// 	HxGet(url(data.request, pathQueueDelete, map[string]string{
-				// 		"queue_id": queue.ID(),
-				// 	})).
-				// 	HxTarget("body").
-				// 	HxSwap("beforeend")
 
 				buttonParameters := hb.Button().
 					Class("btn btn-sm btn-info").

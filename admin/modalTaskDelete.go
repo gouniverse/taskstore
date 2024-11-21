@@ -35,9 +35,7 @@ func (controller *queueManagerController) modalTaskDelete(r *http.Request, queue
 		HTML("Delete").
 		Class("btn btn-danger float-end").
 		HxInclude(`#ModalQueuedTaskDelete`).
-		HxPost(url(r, pathQueueManager, map[string]string{
-			"action": actionModalQueuedTaskDeleteSubmitted,
-		})).
+		HxGet(url(r, pathQueueDelete, map[string]string{})).
 		HxTarget("body").
 		HxSwap("beforeend")
 

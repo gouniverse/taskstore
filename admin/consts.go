@@ -2,6 +2,8 @@ package admin
 
 var endpoint = "" // initialized in admin.go
 
+const pathHome = "home"
+
 const pathQueueCreate = "queue-create"
 const pathQueueManager = "queue-manager"
 const pathQueueUpdate = "queue-update"
@@ -12,9 +14,8 @@ const pathTaskManager = "task-manager"
 const pathTaskUpdate = "task-update"
 const pathTaskDelete = "task-delete"
 
-const PathHome = "home"
-const actionModalQueuedTaskDeleteShow = "modal-queued-task-delete-show"
-const actionModalQueuedTaskDeleteSubmitted = "modal-queued-task-delete-submitted"
+// const actionModalQueuedTaskDeleteShow = "modal-queued-task-delete-show"
+// const actionModalQueuedTaskDeleteSubmitted = "modal-queued-task-delete-submitted"
 const actionModalQueuedTaskDetailsShow = "modal-queued-task-details-show"
 const actionModalQueuedTaskFilterShow = "modal-queued-task-filter-show"
 const actionModalQueuedTaskParametersShow = "modal-queued-task-parameters-show"

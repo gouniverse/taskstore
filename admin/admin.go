@@ -10,11 +10,22 @@ import (
 	"github.com/gouniverse/utils"
 )
 
+type Layout interface {
+	SetTitle(title string)
+	SetScriptURLs(scripts []string)
+	SetScripts(scripts []string)
+	SetStyleURLs(styles []string)
+	SetStyles(styles []string)
+	SetBody(string)
+	Render(w http.ResponseWriter, r *http.Request) string
+}
+
 type UIOptions struct {
 	ResponseWriter http.ResponseWriter
 	Request        *http.Request
 	Logger         *slog.Logger
 	Store          taskstore.StoreInterface
+	Layout         Layout
 }
 
 func UI(options UIOptions) (hb.TagInterface, error) {
@@ -34,11 +45,16 @@ func UI(options UIOptions) (hb.TagInterface, error) {
 		return nil, errors.New("options.Logger is required")
 	}
 
+	if options.Layout == nil {
+		return nil, errors.New("options.Layout is required")
+	}
+
 	admin := &admin{
 		response: options.ResponseWriter,
 		request:  options.Request,
 		store:    options.Store,
 		logger:   *options.Logger,
+		layout:   options.Layout,
 	}
 	return admin.handler(), nil
 }
@@ -48,6 +64,7 @@ type admin struct {
 	request  *http.Request
 	store    taskstore.StoreInterface
 	logger   slog.Logger
+	layout   Layout
 }
 
 func (a *admin) handler() hb.TagInterface {
@@ -61,8 +78,12 @@ func (a *admin) handler() hb.TagInterface {
 		return taskCreate(a.logger, a.store).ToTag(a.response, a.request)
 	}
 
+	if controller == pathTaskDelete {
+		return taskDelete(a.logger, a.store).ToTag(a.response, a.request)
+	}
+
 	if controller == pathTaskManager {
-		return taskManager(a.logger, a.store).ToTag(a.response, a.request)
+		return taskManager(a.logger, a.store, a.layout).ToTag(a.response, a.request)
 	}
 
 	if controller == pathTaskUpdate {
@@ -75,12 +96,11 @@ func (a *admin) handler() hb.TagInterface {
 	}
 
 	if controller == pathQueueDelete {
-		// 	return queueDeleteUi(a.logger, a.store).ToTag(a.response, a.request)
-		return hb.Div().Child(hb.H1().HTML(controller))
+		return queueDelete(a.logger, a.store).ToTag(a.response, a.request)
 	}
 
 	if controller == pathQueueManager {
-		return queueManagerUi(a.logger, a.store).ToTag(a.response, a.request)
+		return queueManager(a.logger, a.store, a.layout).ToTag(a.response, a.request)
 	}
 
 	if controller == pathQueueUpdate {
@@ -88,7 +108,12 @@ func (a *admin) handler() hb.TagInterface {
 		return hb.Div().Child(hb.H1().HTML(controller))
 	}
 
-	return hb.Div().Child(hb.H1().HTML(controller))
+	if controller == pathHome {
+		return home(a.logger, a.store, a.layout).ToTag(a.response, a.request)
+	}
+
+	a.layout.SetBody(hb.H1().HTML(controller).ToHTML())
+	return hb.Raw(a.layout.Render(a.response, a.request))
 	// redirect(a.response, a.request, url(a.request, pathQueueManager, map[string]string{}))
 	// return nil
 }

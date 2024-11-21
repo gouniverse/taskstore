@@ -28,27 +28,55 @@ func (c *taskUpdateController) ToTag(w http.ResponseWriter, r *http.Request) hb.
 	data, err := c.prepareData(r)
 
 	if err != nil {
-		return hb.Swal(hb.SwalOptions{Title: "Error", Text: err.Error()})
+		return hb.Swal(hb.SwalOptions{
+			Icon:              "error",
+			Title:             "Error",
+			Text:              err.Error(),
+			Position:          "top-right",
+			ShowCancelButton:  false,
+			ShowConfirmButton: false,
+		})
 	}
 
 	if r.Method == http.MethodPost {
 		return c.formSubmitted(data)
 	}
 
-	return c.modalTaskCreate(data)
+	return c.modal(data)
 }
 
 func (c *taskUpdateController) formSubmitted(data taskUpdateControllerData) hb.TagInterface {
 	if data.formTitle == "" {
-		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Title is required.", Position: "top-right"})
+		return hb.Swal(hb.SwalOptions{
+			Icon:              "error",
+			Title:             "Error",
+			Text:              "Title is required.",
+			Position:          "top-right",
+			ShowCancelButton:  false,
+			ShowConfirmButton: false,
+		})
 	}
 
 	if data.formAlias == "" {
-		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Alias is required.", Position: "top-right"})
+		return hb.Swal(hb.SwalOptions{
+			Icon:              "error",
+			Title:             "Error",
+			Text:              "Alias is required.",
+			Position:          "top-right",
+			ShowCancelButton:  false,
+			ShowConfirmButton: false,
+		})
 	}
 
 	if data.formStatus == "" {
-		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: "Status is required.", Position: "top-right"})
+		return hb.Swal(hb.SwalOptions{
+			Icon:              "error",
+			Title:             "Error",
+			Text:              "Status is required.",
+			Position:          "top-right",
+			ShowCancelButton:  false,
+			ShowConfirmButton: false,
+		})
 	}
 
 	data.task.
@@ -60,15 +88,29 @@ func (c *taskUpdateController) formSubmitted(data taskUpdateControllerData) hb.T
 	err := c.store.TaskUpdate(data.task)
 
 	if err != nil {
-		return hb.Swal(hb.SwalOptions{Icon: "error", Title: "Error", Text: err.Error(), Position: "top-right"})
+		return hb.Swal(hb.SwalOptions{
+			Icon:              "error",
+			Title:             "Error",
+			Text:              err.Error(),
+			Position:          "top-right",
+			ShowCancelButton:  false,
+			ShowConfirmButton: false,
+		})
 	}
 
 	return hb.Wrap().
-		Child(hb.Swal(hb.SwalOptions{Icon: "success", Title: "Success", Text: "Task successfully updated.", Position: "top-right"})).
+		Child(hb.Swal(hb.SwalOptions{
+			Icon:              "success",
+			Title:             "Success",
+			Text:              "Task successfully updated.",
+			Position:          "top-right",
+			ShowCancelButton:  false,
+			ShowConfirmButton: false,
+		})).
 		Child(hb.Script(`setTimeout(function(){window.location.href = window.location.href}, 2000);`))
 }
 
-func (c *taskUpdateController) modalTaskCreate(data taskUpdateControllerData) *hb.Tag {
+func (c *taskUpdateController) modal(data taskUpdateControllerData) *hb.Tag {
 	fieldTitle := form.NewField(form.FieldOptions{
 		Label:    "Title",
 		Name:     "title",
@@ -110,16 +152,35 @@ func (c *taskUpdateController) modalTaskCreate(data taskUpdateControllerData) *h
 		},
 	})
 
-	formCreate := form.NewForm(form.FormOptions{
-		ID: "ModalTaskCreate",
+	fieldDescription := form.NewField(form.FieldOptions{
+		Label:    "Description",
+		Name:     "description",
+		Type:     form.FORM_FIELD_TYPE_TEXTAREA,
+		Value:    data.formDescription,
+		Help:     "The description of the task.",
+		Required: true,
+	})
+
+	fieldTaskID := form.NewField(form.FieldOptions{
+		Label:    "Task ID",
+		Name:     "task_id",
+		Type:     form.FORM_FIELD_TYPE_HIDDEN,
+		Value:    data.taskID,
+		Required: true,
+	})
+
+	formUpdate := form.NewForm(form.FormOptions{
+		ID: "FormTaskUpdate",
 		Fields: []form.FieldInterface{
 			fieldTitle,
 			fieldAlias,
 			fieldStatus,
+			fieldDescription,
+			fieldTaskID,
 		},
 	})
 
-	modalCloseScript := `document.getElementById('ModalTaskCreate').remove();document.getElementById('ModalBackdrop').remove();`
+	modalCloseScript := `document.getElementById('ModalTaskUpdate').remove();document.getElementById('ModalBackdrop').remove();`
 	butonModalClose := hb.Button().Type("button").
 		Class("btn-close").
 		Data("bs-dismiss", "modal").
@@ -131,17 +192,17 @@ func (c *taskUpdateController) modalTaskCreate(data taskUpdateControllerData) *h
 		Class("btn btn-secondary float-start").
 		OnClick(modalCloseScript)
 
-	buttonCreate := hb.Button().
+	buttonUpdate := hb.Button().
 		Child(hb.I().Class("bi bi-check-circle me-2")).
-		HTML("Create").
+		HTML("Save").
 		Class("btn btn-success float-end").
-		HxInclude(`#ModalTaskCreate`).
-		HxPost(url(data.request, pathTaskCreate, nil)).
+		HxInclude(`#ModalTaskUpdate`).
+		HxPost(url(data.request, pathTaskUpdate, nil)).
 		HxTarget("body").
 		HxSwap("beforeend")
 
 	modal := bs.Modal().
-		ID("ModalTaskCreate").
+		ID("ModalTaskUpdate").
 		Class("fade show").
 		Style(`display:block;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1051;`).
 		Children([]hb.TagInterface{
@@ -149,18 +210,18 @@ func (c *taskUpdateController) modalTaskCreate(data taskUpdateControllerData) *h
 				bs.ModalContent().Children([]hb.TagInterface{
 					bs.ModalHeader().Children([]hb.TagInterface{
 						hb.Heading5().
-							Text("New Task").
+							Text("Edit Task").
 							Style(`padding: 0px; margin: 0px;`),
 						butonModalClose,
 					}),
 
 					bs.ModalBody().
-						Child(formCreate.Build()),
+						Child(formUpdate.Build()),
 
 					bs.ModalFooter().
 						Style(`display:flex;justify-content:space-between;`).
 						Child(buttonCancel).
-						Child(buttonCreate),
+						Child(buttonUpdate),
 				}),
 			}),
 		})

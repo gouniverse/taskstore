@@ -269,6 +269,7 @@ type StoreInterface interface {
 	QueueSoftDeleteByID(id string) error
 	QueueUpdate(Queue QueueInterface) error
 
+	QueueRunGoroutine(processSeconds int, unstuckMinutes int)
 	QueuedTaskProcess(queuedTask QueueInterface) (bool, error)
 
 	TaskEnqueueByAlias(alias string, parameters map[string]interface{}) (QueueInterface, error)
@@ -285,5 +286,6 @@ type StoreInterface interface {
 	TaskSoftDeleteByID(id string) error
 	TaskUpdate(Task TaskInterface) error
 
+	TaskHandlerList() []TaskHandlerInterface
 	TaskHandlerAdd(taskHandler TaskHandlerInterface, createIfMissing bool) error
 }

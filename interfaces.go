@@ -1,6 +1,6 @@
 package taskstore
 
-import "github.com/golang-module/carbon/v2"
+import "github.com/dromara/carbon/v2"
 
 // ID          string     `json:"id" db:"id"`                     // varchar (40) primary_key
 // 	Status      string     `json:"status" db:"status"`             // varchar(40) DEFAULT 'queued'

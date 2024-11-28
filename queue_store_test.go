@@ -6,15 +6,6 @@ import (
 	"testing"
 )
 
-// func NewQueue() *Queue {
-// 	// nilTime := carbon.Parse(sb.NULL_DATETIME).ToStdTime()
-// 	queue := &Queue{}
-// 	// queue.Parameters = "{}"
-// 	// queue.StartedAt = &nilTime
-// 	// queue.CompletedAt = &nilTime
-// 	return queue
-// }
-
 func Test_Store_SqlCreateQueueTable(t *testing.T) {
 	store, err := InitStore("test_queue_table_create.db")
 	if err != nil {

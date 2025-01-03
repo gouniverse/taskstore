@@ -2,18 +2,6 @@ package taskstore
 
 import "github.com/dromara/carbon/v2"
 
-// ID          string     `json:"id" db:"id"`                     // varchar (40) primary_key
-// 	Status      string     `json:"status" db:"status"`             // varchar(40) DEFAULT 'queued'
-// 	TaskID      string     `json:"task_id" db:"task_id"`           // varchar(40)
-// 	Parameters  string     `json:"parameters" db:"parameters"`     // text
-// 	Output      string     `json:"output" db:"output"`             // text
-// 	Details     string     `json:"details" db:"details"`           // text
-// 	Attempts    int        `json:"attempts" db:"attempts"`         // int
-// 	StartedAt   *time.Time `json:"started_at" db:"started_at"`     // datetime DEFAULT NULL
-// 	CompletedAt *time.Time `json:"completed_at" db:"completed_at"` // datetime DEFAULT NULL
-// 	CreatedAt   time.Time  `json:"created_at" db:"created_at"`     // datetime NOT NULL
-// 	UpdatedAt   time.Time  `json:"updated_at" db:"updated_at"`     // datetime NOT NULL
-// 	DeletedAt   *time.Time `json:"deleted_at" db:"deleted_at"`     // datetime DEFAULT NULL
 type QueueInterface interface {
 	Data() map[string]string
 	DataChanged() map[string]string

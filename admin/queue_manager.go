@@ -345,9 +345,13 @@ func (controller *queueManagerController) tableRecords(data queueManagerControll
 				completeddAtTime := lo.IfF(queuedTask.CompletedAt() != "", func() string {
 					return queuedTask.CompletedAtCarbon().ToTimeString()
 				}).Else("-")
+
 				elapsedTime := lo.IfF(queuedTask.StartedAt() != "" && queuedTask.CompletedAt() != "", func() string {
-					return queuedTask.CompletedAtCarbon().DiffForHumans(queuedTask.StartedAtCarbon())
+					//return queuedTask.CompletedAtCarbon().DiffForHumans(queuedTask.StartedAtCarbon())
+					diffSeconds := queuedTask.CompletedAtCarbon().DiffAbsInSeconds(queuedTask.StartedAtCarbon())
+					return cast.ToString(diffSeconds) + "s"
 				}).Else("-")
+
 				createdAtDate := queuedTask.CreatedAtCarbon().Format("d M Y")
 				createdAtTime := queuedTask.CreatedAtCarbon().ToTimeString()
 
@@ -359,8 +363,9 @@ func (controller *queueManagerController) tableRecords(data queueManagerControll
 					StyleIf(queuedTask.IsFailed(), `color:red;`).
 					HTML(queuedTask.Status())
 
-				return hb.TR().Children([]hb.TagInterface{
-					hb.TD().
+				return hb.TR().
+					// Name, Alias, Ref
+					Child(hb.TD().
 						Child(hb.Div().Text(taskName)).
 						Child(hb.Div().
 							Style("font-size: 11px;").
@@ -369,32 +374,43 @@ func (controller *queueManagerController) tableRecords(data queueManagerControll
 						Child(hb.Div().
 							Style("font-size: 11px;").
 							Text("Ref: ").
-							Text(queuedTask.ID())),
-					hb.TD().
-						Child(status),
-					hb.TD().
+							Text(queuedTask.ID()))).
+
+					// Status
+					Child(hb.TD().
+						Child(status)).
+
+					// Started At
+					Child(hb.TD().
 						Child(hb.Div().Text(startedAtDate)).
 						Child(hb.Div().Text(startedAtTime)).
-						Style("white-space: nowrap; font-size: 13px;"),
-					hb.TD().
+						Style("white-space: nowrap; font-size: 13px;")).
+
+					// Completed At
+					Child(hb.TD().
 						Child(hb.Div().Text(completeddAtDate)).
 						Child(hb.Div().Text(completeddAtTime)).
-						Style("white-space: nowrap; font-size: 13px;"),
-					hb.TD().
+						Style("white-space: nowrap; font-size: 13px;")).
+
+					// Duration
+					Child(hb.TD().
 						Child(hb.Div().Text(elapsedTime)).
-						Style("white-space: nowrap;"),
-					hb.TD().
+						Style("white-space: nowrap;")).
+
+					// Created At
+					Child(hb.TD().
 						Child(hb.Div().Text(createdAtDate)).
 						Child(hb.Div().Text(createdAtTime)).
-						Style("white-space: nowrap; font-size: 13px;"),
-					hb.TD().
+						Style("white-space: nowrap; font-size: 13px;")).
+
+					// Actions
+					Child(hb.TD().
 						Style("text-align: center;").
 						Child(buttonParameters).
 						Child(buttonDetails).
 						Child(buttonAddToQueue).
 						Child(buttonRestart).
-						Child(buttonDelete),
-				})
+						Child(buttonDelete))
 			})),
 		})
 

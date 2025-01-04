@@ -179,6 +179,7 @@ type TaskQueryInterface interface {
 	IsCountOnly() bool
 	SetCountOnly(countOnly bool) TaskQueryInterface
 
+	HasAlias() bool
 	Alias() string
 	SetAlias(alias string) TaskQueryInterface
 

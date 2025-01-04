@@ -15,6 +15,10 @@ type taskQuery struct {
 var _ TaskQueryInterface = (*taskQuery)(nil)
 
 func (q *taskQuery) Validate() error {
+	if q.HasAlias() && q.Alias() == "" {
+		return errors.New("task query. alias cannot be empty")
+	}
+
 	if q.HasCreatedAtGte() && q.CreatedAtGte() == "" {
 		return errors.New("task query. created_at_gte cannot be empty")
 	}
@@ -52,6 +56,10 @@ func (q *taskQuery) Validate() error {
 	}
 
 	return nil
+}
+
+func (q *taskQuery) HasAlias() bool {
+	return q.hasProperty("alias")
 }
 
 func (q *taskQuery) Alias() string {

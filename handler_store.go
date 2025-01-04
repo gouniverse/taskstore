@@ -5,7 +5,8 @@ import "errors"
 var errTaskMissing = errors.New("task not found")
 
 func (store *Store) TaskHandlerAdd(taskHandler TaskHandlerInterface, createIfMissing bool) error {
-	task, err := store.TaskFindByAlias(taskHandler.Alias())
+	alias := taskHandler.Alias()
+	task, err := store.TaskFindByAlias(alias)
 
 	if err != nil {
 		return err

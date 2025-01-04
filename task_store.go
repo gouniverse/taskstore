@@ -171,7 +171,7 @@ func (store *Store) TaskList(query TaskQueryInterface) ([]TaskInterface, error) 
 		return []TaskInterface{}, err
 	}
 
-	sqlStr, _, errSql := q.Select(columns...).ToSQL()
+	sqlStr, sqlParams, errSql := q.Prepared(true).Select(columns...).ToSQL()
 
 	if errSql != nil {
 		return []TaskInterface{}, nil
@@ -191,7 +191,7 @@ func (store *Store) TaskList(query TaskQueryInterface) ([]TaskInterface, error) 
 		return []TaskInterface{}, errors.New("taskstore: database is nil")
 	}
 
-	modelMaps, err := db.SelectToMapString(sqlStr)
+	modelMaps, err := db.SelectToMapString(sqlStr, sqlParams...)
 
 	if err != nil {
 		return []TaskInterface{}, err
@@ -327,6 +327,10 @@ func (store *Store) taskSelectQuery(options TaskQueryInterface) (selectDataset *
 	}
 
 	q := goqu.Dialect(store.dbDriverName).From(store.taskTableName)
+
+	if options.HasAlias() {
+		q = q.Where(goqu.C(COLUMN_ALIAS).Eq(options.Alias()))
+	}
 
 	if options.HasCreatedAtGte() && options.HasCreatedAtLte() {
 		q = q.Where(

@@ -40,6 +40,67 @@ func Test_TaskHandlerBase(t *testing.T) {
 	}
 }
 
+func Test_TaskHandlerBase_GetParamArray(t *testing.T) {
+	handler := newTestTaskHandler()
+
+	// Test case 1: Empty input
+	handler.SetOptions(map[string]string{})
+	result := handler.GetParamArray("paramArray")
+	if len(result) != 0 {
+		t.Errorf("Test Case 1 Failed: Expected empty array, got %v", result)
+	}
+
+	// Test case 2: Valid input (options)
+	handler.SetOptions(map[string]string{"paramArray": "value1;value2;value3"})
+	result = handler.GetParamArray("paramArray")
+	expected := []string{"value1", "value2", "value3"}
+	if len(result) != len(expected) {
+		t.Errorf("Test Case 2 Failed: Expected %v, got %v", expected, result)
+	}
+	for i := range expected {
+		if result[i] != expected[i] {
+			t.Errorf("Test Case 2 Failed: Expected %v, got %v", expected, result)
+			break
+		}
+	}
+
+	// // Test case 3: Valid input (queuedTask)
+	queuedTask, err := NewQueue().SetParametersMap(map[string]string{"paramArray": "value4;value5;value6"})
+	if err != nil {
+		t.Errorf("Test Case 3 Failed: %v", err)
+	}
+	handler.SetQueuedTask(queuedTask)
+	result = handler.GetParamArray("paramArray")
+	expected = []string{"value4", "value5", "value6"}
+	if len(result) != len(expected) {
+		t.Errorf("Test Case 3 Failed: Expected %v, got %v", expected, result)
+	}
+	for i := range expected {
+		if result[i] != expected[i] {
+			t.Errorf("Test Case 3 Failed: Expected %v, got %v", expected, result)
+			break
+		}
+	}
+
+	// Test case 4: Valid input (queuedTask)
+	queuedTask, err = NewQueue().SetParametersMap(map[string]string{"paramArray": "singleValue"})
+	if err != nil {
+		t.Errorf("Test Case 4 Failed: %v", err)
+	}
+	handler.SetQueuedTask(queuedTask)
+	result = handler.GetParamArray("paramArray")
+	expected = []string{"singleValue"}
+	if len(result) != len(expected) {
+		t.Errorf("Test Case 4 Failed: Expected %v, got %v", expected, result)
+	}
+	for i := range expected {
+		if result[i] != expected[i] {
+			t.Errorf("Test Case 4 Failed: Expected %v, got %v", expected, result)
+			break
+		}
+	}
+}
+
 func newTestTaskHandler() *testTaskHandler {
 	return &testTaskHandler{}
 }

@@ -1,6 +1,8 @@
 package taskstore
 
 import (
+	"strings"
+
 	"github.com/mingrammer/cfmt"
 )
 
@@ -92,26 +94,12 @@ func (handler *TaskHandlerBase) GetParam(paramName string) string {
 	}
 }
 
-// func (handler *TaskHandlerBase) GetParamArray(paramName string) []string {
-// 	if handler.queuedTask != nil {
-// 		parameters, parametersErr := handler.queuedTask.ParametersMap()
-// 		if parametersErr != nil {
-// 			handler.queuedTask.AppendDetails("Parameters JSON incorrect. " + parametersErr.Error())
-// 			return []string{}
-// 		}
+func (handler *TaskHandlerBase) GetParamArray(paramName string) []string {
+	param := handler.GetParam(paramName)
 
-// 		paramValues, paramExists := parameters[paramName]
-// 		if !paramExists {
-// 			return []string{}
-// 		}
+	if param == "" {
+		return []string{}
+	}
 
-// 		paramValuesInterface := paramValues.([]interface{})
-// 		paramValuesString := []string{}
-// 		for _, v := range paramValuesInterface {
-// 			paramValuesString = append(paramValuesString, v.(string))
-// 		}
-// 		return paramValuesString
-// 	} else {
-// 		return strings.Split(handler.options[paramName], ";")
-// 	}
-// }
+	return strings.Split(param, ";")
+}

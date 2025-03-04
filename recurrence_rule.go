@@ -264,57 +264,57 @@ func parseDateTime(dateTimeUTC string) carbon.Carbon {
 	return carbon.Parse(dateTimeUTC, carbon.UTC)
 }
 
-func dayOfWeekToInt(day DayOfWeek) int {
-	switch day {
-	case DayOfWeekSunday:
-		return 0
-	case DayOfWeekMonday:
-		return 1
-	case DayOfWeekTuesday:
-		return 2
-	case DayOfWeekWednesday:
-		return 3
-	case DayOfWeekThursday:
-		return 4
-	case DayOfWeekFriday:
-		return 5
-	case DayOfWeekSaturday:
-		return 6
-	default:
-		return 0
-	}
-}
+// func UNUSED_dayOfWeekToInt(day DayOfWeek) int {
+// 	switch day {
+// 	case DayOfWeekSunday:
+// 		return 0
+// 	case DayOfWeekMonday:
+// 		return 1
+// 	case DayOfWeekTuesday:
+// 		return 2
+// 	case DayOfWeekWednesday:
+// 		return 3
+// 	case DayOfWeekThursday:
+// 		return 4
+// 	case DayOfWeekFriday:
+// 		return 5
+// 	case DayOfWeekSaturday:
+// 		return 6
+// 	default:
+// 		return 0
+// 	}
+// }
 
-func monthOfYearToInt(month MonthOfYear) int {
-	switch month {
-	case MonthOfYearJanuary:
-		return 1
-	case MonthOfYearFebruary:
-		return 2
-	case MonthOfYearMarch:
-		return 3
-	case MonthOfYearApril:
-		return 4
-	case MonthOfYearMay:
-		return 5
-	case MonthOfYearJune:
-		return 6
-	case MonthOfYearJuly:
-		return 7
-	case MonthOfYearAugust:
-		return 8
-	case MonthOfYearSeptember:
-		return 9
-	case MonthOfYearOctober:
-		return 10
-	case MonthOfYearNovember:
-		return 11
-	case MonthOfYearDecember:
-		return 12
-	default:
-		return 0
-	}
-}
+// func UNUSED_monthOfYearToInt(month MonthOfYear) int {
+// 	switch month {
+// 	case MonthOfYearJanuary:
+// 		return 1
+// 	case MonthOfYearFebruary:
+// 		return 2
+// 	case MonthOfYearMarch:
+// 		return 3
+// 	case MonthOfYearApril:
+// 		return 4
+// 	case MonthOfYearMay:
+// 		return 5
+// 	case MonthOfYearJune:
+// 		return 6
+// 	case MonthOfYearJuly:
+// 		return 7
+// 	case MonthOfYearAugust:
+// 		return 8
+// 	case MonthOfYearSeptember:
+// 		return 9
+// 	case MonthOfYearOctober:
+// 		return 10
+// 	case MonthOfYearNovember:
+// 		return 11
+// 	case MonthOfYearDecember:
+// 		return 12
+// 	default:
+// 		return 0
+// 	}
+// }
 
 func NewRecurrenceRule() RecurrenceRule {
 	r := recurrenceRule{}

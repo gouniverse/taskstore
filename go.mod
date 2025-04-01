@@ -13,7 +13,6 @@ require (
 	github.com/dromara/carbon/v2 v2.6.1
 	github.com/gouniverse/bs v0.13.0
 	github.com/gouniverse/cdn v1.6.0
-	github.com/gouniverse/cmsstore v0.27.0
 	github.com/gouniverse/dataobject v1.2.0
 	github.com/gouniverse/form v0.16.0
 	github.com/gouniverse/hb v1.83.4
@@ -23,14 +22,21 @@ require (
 )
 
 require (
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/go-sql-driver/mysql v1.9.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gouniverse/base v0.9.0 // indirect
 	github.com/gouniverse/crypto v0.2.0 // indirect
 	github.com/gouniverse/envenc v0.10.0 // indirect
-	github.com/gouniverse/versionstore v0.4.2 // indirect
 	github.com/gouniverse/webserver v0.1.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/lib/pq v1.10.9 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	golang.org/x/term v0.30.0 // indirect
+	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
+	modernc.org/libc v1.62.0 // indirect
+	modernc.org/sqlite v1.36.3 // indirect
 )
 
 require (

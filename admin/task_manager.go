@@ -7,7 +7,6 @@ import (
 
 	"github.com/gouniverse/bs"
 	"github.com/gouniverse/cdn"
-	"github.com/gouniverse/cmsstore"
 	"github.com/gouniverse/hb"
 	"github.com/gouniverse/sb"
 	"github.com/gouniverse/taskstore"
@@ -332,7 +331,7 @@ func (controller *taskManagerController) prepareData(r *http.Request) (data task
 	data.pageInt = cast.ToInt(data.page)
 	data.perPage = cast.ToInt(utils.Req(r, "per_page", cast.ToString(initialPerPage)))
 	data.sortOrder = utils.Req(r, "sort", sb.DESC)
-	data.sortBy = utils.Req(r, "by", cmsstore.COLUMN_CREATED_AT)
+	data.sortBy = utils.Req(r, "by", taskstore.COLUMN_CREATED_AT)
 
 	data.formCreatedFrom = utils.Req(r, "filter_created_from", "")
 	data.formCreatedTo = utils.Req(r, "filter_created_to", "")

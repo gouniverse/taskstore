@@ -7,7 +7,7 @@ import (
 
 	"github.com/gouniverse/bs"
 	"github.com/gouniverse/cdn"
-	"github.com/gouniverse/cmsstore"
+
 	"github.com/gouniverse/form"
 	"github.com/gouniverse/hb"
 	"github.com/gouniverse/sb"
@@ -127,16 +127,32 @@ func (*queueManagerController) onModalRecordFilterShow(data queueManagerControll
 						Key:   "",
 					},
 					{
-						Value: "Active",
-						Key:   cmsstore.SITE_STATUS_ACTIVE,
+						Value: "Canceled",
+						Key:   taskstore.QueueStatusCanceled,
 					},
 					{
-						Value: "Inactive",
-						Key:   cmsstore.SITE_STATUS_INACTIVE,
+						Value: "Deleted",
+						Key:   taskstore.QueueStatusDeleted,
 					},
 					{
-						Value: "Draft",
-						Key:   cmsstore.SITE_STATUS_DRAFT,
+						Value: "Failed",
+						Key:   taskstore.QueueStatusFailed,
+					},
+					{
+						Value: "Paused",
+						Key:   taskstore.QueueStatusPaused,
+					},
+					{
+						Value: "Queued",
+						Key:   taskstore.QueueStatusQueued,
+					},
+					{
+						Value: "Running",
+						Key:   taskstore.QueueStatusRunning,
+					},
+					{
+						Value: "Success",
+						Key:   taskstore.QueueStatusSuccess,
 					},
 				},
 			}),
@@ -555,7 +571,7 @@ func (controller *queueManagerController) prepareData(r *http.Request) (data que
 	data.pageInt = cast.ToInt(data.page)
 	data.perPage = cast.ToInt(utils.Req(r, "per_page", cast.ToString(initialPerPage)))
 	data.sortOrder = utils.Req(r, "sort", sb.DESC)
-	data.sortBy = utils.Req(r, "by", cmsstore.COLUMN_CREATED_AT)
+	data.sortBy = utils.Req(r, "by", taskstore.COLUMN_CREATED_AT)
 
 	data.formCreatedFrom = utils.Req(r, "filter_created_from", "")
 	data.formCreatedTo = utils.Req(r, "filter_created_to", "")

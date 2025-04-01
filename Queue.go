@@ -95,7 +95,7 @@ func (o *queue) CompletedAt() string {
 	return o.Get(COLUMN_COMPLETED_AT)
 }
 
-func (o *queue) CompletedAtCarbon() carbon.Carbon {
+func (o *queue) CompletedAtCarbon() *carbon.Carbon {
 	return carbon.Parse(o.CompletedAt(), carbon.UTC)
 }
 
@@ -108,7 +108,7 @@ func (o *queue) CreatedAt() string {
 	return o.Get(COLUMN_CREATED_AT)
 }
 
-func (o *queue) CreatedAtCarbon() carbon.Carbon {
+func (o *queue) CreatedAtCarbon() *carbon.Carbon {
 	return carbon.Parse(o.CreatedAt(), carbon.UTC)
 }
 
@@ -254,8 +254,8 @@ func (o *queue) StartedAt() string {
 	return o.Get(COLUMN_STARTED_AT)
 }
 
-func (o *queue) StartedAtCarbon() carbon.Carbon {
-	return carbon.NewCarbon().Parse(o.StartedAt(), carbon.UTC)
+func (o *queue) StartedAtCarbon() *carbon.Carbon {
+	return carbon.Parse(o.StartedAt(), carbon.UTC)
 }
 
 func (o *queue) SetStartedAt(startedAt string) QueueInterface {
@@ -271,8 +271,8 @@ func (o *queue) SoftDeletedAt() string {
 	return o.Get(COLUMN_DELETED_AT)
 }
 
-func (o *queue) SoftDeletedAtCarbon() carbon.Carbon {
-	return carbon.NewCarbon().Parse(o.SoftDeletedAt(), carbon.UTC)
+func (o *queue) SoftDeletedAtCarbon() *carbon.Carbon {
+	return carbon.Parse(o.SoftDeletedAt(), carbon.UTC)
 }
 
 func (o *queue) SetSoftDeletedAt(deletedAt string) QueueInterface {
@@ -298,8 +298,8 @@ func (o *queue) UpdatedAt() string {
 	return o.Get(COLUMN_UPDATED_AT)
 }
 
-func (o *queue) UpdatedAtCarbon() carbon.Carbon {
-	return carbon.NewCarbon().Parse(o.Get(COLUMN_UPDATED_AT), carbon.UTC)
+func (o *queue) UpdatedAtCarbon() *carbon.Carbon {
+	return carbon.Parse(o.Get(COLUMN_UPDATED_AT), carbon.UTC)
 }
 
 func (o *queue) SetUpdatedAt(updatedAt string) QueueInterface {

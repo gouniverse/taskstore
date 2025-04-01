@@ -11,8 +11,8 @@ func TestNextRunAt(t *testing.T) {
 	type testCase struct {
 		name        string
 		rule        RecurrenceRule
-		now         carbon.Carbon
-		expected    carbon.Carbon
+		now         *carbon.Carbon
+		expected    *carbon.Carbon
 		expectedErr string
 	}
 

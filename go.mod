@@ -1,6 +1,6 @@
 module github.com/gouniverse/taskstore
 
-go 1.23.3
+go 1.24.0
 
 require (
 	github.com/doug-martin/goqu/v9 v9.19.0
@@ -10,11 +10,11 @@ require (
 )
 
 require (
-	github.com/dromara/carbon/v2 v2.5.3
+	github.com/dromara/carbon/v2 v2.6.1
 	github.com/gouniverse/bs v0.13.0
 	github.com/gouniverse/cdn v1.6.0
-	github.com/gouniverse/cmsstore v0.25.0
-	github.com/gouniverse/dataobject v0.3.0
+	github.com/gouniverse/cmsstore v0.27.0
+	github.com/gouniverse/dataobject v1.2.0
 	github.com/gouniverse/form v0.16.0
 	github.com/gouniverse/hb v1.83.4
 	github.com/gouniverse/utils v1.45.4
@@ -27,10 +27,10 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gouniverse/base v0.9.0 // indirect
 	github.com/gouniverse/crypto v0.2.0 // indirect
-	github.com/gouniverse/envenc v0.8.0 // indirect
+	github.com/gouniverse/envenc v0.10.0 // indirect
 	github.com/gouniverse/versionstore v0.4.2 // indirect
 	github.com/gouniverse/webserver v0.1.0 // indirect
-	golang.org/x/term v0.29.0 // indirect
+	golang.org/x/term v0.30.0 // indirect
 )
 
 require (
@@ -45,8 +45,8 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/samber/lo v1.49.1
 	github.com/teambition/rrule-go v1.8.2
-	golang.org/x/crypto v0.35.0 // indirect
-	golang.org/x/net v0.35.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
 )

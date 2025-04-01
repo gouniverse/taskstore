@@ -76,7 +76,7 @@ type RecurrenceRule interface {
 	SetMonthsOfYear([]MonthOfYear) RecurrenceRule
 }
 
-func NextRunAt(rule RecurrenceRule, now carbon.Carbon) (carbon.Carbon, error) {
+func NextRunAt(rule RecurrenceRule, now *carbon.Carbon) (*carbon.Carbon, error) {
 	startsAt := parseDateTime(rule.GetStartsAt())
 
 	endsAt := parseDateTime(rule.GetEndsAt())
@@ -87,7 +87,7 @@ func NextRunAt(rule RecurrenceRule, now carbon.Carbon) (carbon.Carbon, error) {
 	}
 
 	if interval := rule.GetInterval(); interval <= 0 {
-		return carbon.Carbon{}, fmt.Errorf("interval must be positive")
+		return nil, fmt.Errorf("interval must be positive")
 	}
 
 	if now.Lt(startsAt) {
@@ -108,13 +108,13 @@ func NextRunAt(rule RecurrenceRule, now carbon.Carbon) (carbon.Carbon, error) {
 	})
 
 	if err != nil {
-		return carbon.Carbon{}, err
+		return nil, err
 	}
 
 	times := r.Between(now.StdTime(), endsAt.StdTime(), true)
 
 	if len(times) == 0 {
-		return carbon.Carbon{}, fmt.Errorf("no more runs")
+		return nil, fmt.Errorf("no more runs")
 	}
 
 	return carbon.Parse(times[0].String(), carbon.UTC), nil
@@ -260,7 +260,7 @@ func frequencyToRRuleFrequency(frequency Frequency) rrule.Frequency {
 // 	return (nextDayOfWeek - int(dayOfWeek) + 7) % 7
 // }
 
-func parseDateTime(dateTimeUTC string) carbon.Carbon {
+func parseDateTime(dateTimeUTC string) *carbon.Carbon {
 	return carbon.Parse(dateTimeUTC, carbon.UTC)
 }
 

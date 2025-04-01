@@ -70,7 +70,7 @@ func (o *task) CreatedAt() string {
 	return o.Get(COLUMN_CREATED_AT)
 }
 
-func (o *task) CreatedAtCarbon() carbon.Carbon {
+func (o *task) CreatedAtCarbon() *carbon.Carbon {
 	return carbon.Parse(o.CreatedAt(), carbon.UTC)
 }
 
@@ -172,8 +172,8 @@ func (o *task) SoftDeletedAt() string {
 	return o.Get(COLUMN_DELETED_AT)
 }
 
-func (o *task) SoftDeletedAtCarbon() carbon.Carbon {
-	return carbon.NewCarbon().Parse(o.SoftDeletedAt(), carbon.UTC)
+func (o *task) SoftDeletedAtCarbon() *carbon.Carbon {
+	return carbon.Parse(o.SoftDeletedAt(), carbon.UTC)
 }
 
 func (o *task) SetSoftDeletedAt(deletedAt string) TaskInterface {
@@ -199,8 +199,8 @@ func (o *task) UpdatedAt() string {
 	return o.Get(COLUMN_UPDATED_AT)
 }
 
-func (o *task) UpdatedAtCarbon() carbon.Carbon {
-	return carbon.NewCarbon().Parse(o.Get(COLUMN_UPDATED_AT), carbon.UTC)
+func (o *task) UpdatedAtCarbon() *carbon.Carbon {
+	return carbon.Parse(o.Get(COLUMN_UPDATED_AT), carbon.UTC)
 }
 
 func (o *task) SetUpdatedAt(updatedAt string) TaskInterface {

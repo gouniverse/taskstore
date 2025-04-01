@@ -20,11 +20,11 @@ type QueueInterface interface {
 	SetAttempts(attempts int) QueueInterface
 
 	CompletedAt() string
-	CompletedAtCarbon() carbon.Carbon
+	CompletedAtCarbon() *carbon.Carbon
 	SetCompletedAt(completedAt string) QueueInterface
 
 	CreatedAt() string
-	CreatedAtCarbon() carbon.Carbon
+	CreatedAtCarbon() *carbon.Carbon
 	SetCreatedAt(createdAt string) QueueInterface
 
 	Details() string
@@ -52,11 +52,11 @@ type QueueInterface interface {
 	SetParametersMap(parameters map[string]string) (QueueInterface, error)
 
 	SoftDeletedAt() string
-	SoftDeletedAtCarbon() carbon.Carbon
+	SoftDeletedAtCarbon() *carbon.Carbon
 	SetSoftDeletedAt(deletedAt string) QueueInterface
 
 	StartedAt() string
-	StartedAtCarbon() carbon.Carbon
+	StartedAtCarbon() *carbon.Carbon
 	SetStartedAt(startedAt string) QueueInterface
 
 	Status() string
@@ -66,7 +66,7 @@ type QueueInterface interface {
 	SetTaskID(taskID string) QueueInterface
 
 	UpdatedAt() string
-	UpdatedAtCarbon() carbon.Carbon
+	UpdatedAtCarbon() *carbon.Carbon
 	SetUpdatedAt(updatedAt string) QueueInterface
 }
 
@@ -142,7 +142,7 @@ type TaskInterface interface {
 	SetAlias(alias string) TaskInterface
 
 	CreatedAt() string
-	CreatedAtCarbon() carbon.Carbon
+	CreatedAtCarbon() *carbon.Carbon
 	SetCreatedAt(createdAt string) TaskInterface
 
 	Description() string
@@ -155,7 +155,7 @@ type TaskInterface interface {
 	SetMemo(memo string) TaskInterface
 
 	SoftDeletedAt() string
-	SoftDeletedAtCarbon() carbon.Carbon
+	SoftDeletedAtCarbon() *carbon.Carbon
 	SetSoftDeletedAt(deletedAt string) TaskInterface
 
 	Status() string
@@ -165,7 +165,7 @@ type TaskInterface interface {
 	SetTitle(title string) TaskInterface
 
 	UpdatedAt() string
-	UpdatedAtCarbon() carbon.Carbon
+	UpdatedAtCarbon() *carbon.Carbon
 	SetUpdatedAt(updatedAt string) TaskInterface
 }
 

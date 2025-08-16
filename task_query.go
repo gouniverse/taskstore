@@ -50,11 +50,7 @@ func (q *taskQuery) Validate() error {
 	if q.HasStatusIn() && len(q.StatusIn()) < 1 {
 		return errors.New("task query. status_in cannot be empty array")
 	}
-
-	if q.HasTaskID() && q.TaskID() == "" {
-		return errors.New("task query. task_id cannot be empty")
-	}
-
+	
 	return nil
 }
 
@@ -167,19 +163,6 @@ func (q *taskQuery) Limit() int {
 
 func (q *taskQuery) SetLimit(limit int) TaskQueryInterface {
 	q.properties["limit"] = limit
-	return q
-}
-
-func (q *taskQuery) HasTaskID() bool {
-	return q.hasProperty("task_id")
-}
-
-func (q *taskQuery) TaskID() string {
-	return q.properties["task_id"].(string)
-}
-
-func (q *taskQuery) SetTaskID(taskID string) TaskQueryInterface {
-	q.properties["task_id"] = taskID
 	return q
 }
 
